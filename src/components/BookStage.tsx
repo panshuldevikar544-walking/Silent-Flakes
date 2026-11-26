@@ -5,6 +5,8 @@ import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore }
 
 import type { BookVisual } from '@/lib/data'
 
+import type { Motif } from './FallingLeaves'
+
 const BookScene = dynamic(() => import('./BookScene'), { ssr: false })
 
 export type View = 'front' | 'spine' | 'back'
@@ -54,7 +56,7 @@ const supportsWebGL = () => {
 const never = () => () => {}
 const onServer = () => false
 
-export function BookStage({ book, leaves = false }: { book: BookVisual; leaves?: boolean }) {
+export function BookStage({ book, motif = null }: { book: BookVisual; motif?: Motif | null }) {
   const ref = useRef<HTMLDivElement>(null)
   const can3d = useSyncExternalStore(never, supportsWebGL, onServer)
   const [ready, setReady] = useState(false)
@@ -87,7 +89,7 @@ export function BookStage({ book, leaves = false }: { book: BookVisual; leaves?:
               book={book}
               view={view}
               onMove={clearView}
-              leaves={leaves}
+              motif={motif}
               active={visible}
               onReady={showReady}
             />

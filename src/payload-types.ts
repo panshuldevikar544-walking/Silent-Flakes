@@ -160,6 +160,18 @@ export interface Book {
    * Colours the spine and this book’s page. Example: #24405C
    */
   coverColour?: string | null;
+  /**
+   * The light colour behind this book’s page, taken from the cover (for example its paper tone). Leave empty for a soft tint of the cover colour.
+   */
+  pageColour?: string | null;
+  /**
+   * A second cover colour, used for highlights and the genre labels. Leave empty to use the cover colour.
+   */
+  accentColour?: string | null;
+  /**
+   * What drifts around the 3D book on this book’s page, to match its story.
+   */
+  motif?: ('none' | 'leaves' | 'snow') | null;
   binding: 'paperback' | 'hardcover';
   about?: string | null;
   inspiration?: string | null;
@@ -425,6 +437,9 @@ export interface BooksSelect<T extends boolean = true> {
   cover?: T;
   backCover?: T;
   coverColour?: T;
+  pageColour?: T;
+  accentColour?: T;
+  motif?: T;
   binding?: T;
   about?: T;
   inspiration?: T;

@@ -8,7 +8,7 @@ import * as THREE from 'three'
 
 import type { BookVisual } from '@/lib/data'
 import { backCover, spineArt, titleCover } from './bookTextures'
-import { FallingLeaves } from './FallingLeaves'
+import { FallingLeaves, type Motif } from './FallingLeaves'
 import type { View } from './BookStage'
 
 const MODEL = '/models/book_parts.glb'
@@ -28,7 +28,8 @@ type Props = {
   /** The chosen side, or null once the book has moved away from it. */
   view: View | null
   onMove: () => void
-  leaves: boolean
+  /** What falls around the book, if anything. */
+  motif: Motif | null
   active: boolean
   onReady: () => void
 }
@@ -50,7 +51,7 @@ function CoverImage({ url, ...mesh }: { url: string } & React.ComponentProps<'me
   )
 }
 
-function Book({ book, view, onMove, onReady }: Omit<Props, 'leaves' | 'active'>) {
+function Book({ book, view, onMove, onReady }: Omit<Props, 'motif' | 'active'>) {
   const { nodes } = useGLTF(MODEL, false) as unknown as { nodes: Record<string, THREE.Mesh> }
   const [clothMap, pageMap] = useLoader(THREE.TextureLoader, [
     '/textures/cloth_normal.png',
@@ -262,7 +263,7 @@ function Framing() {
   return null
 }
 
-export default function BookScene({ book, view, onMove, leaves, active, onReady }: Props) {
+export default function BookScene({ book, view, onMove, motif, active, onReady }: Props) {
   const [small] = useState(() => window.innerWidth < 700)
   const [fontReady, setFontReady] = useState(false)
 
@@ -310,7 +311,7 @@ export default function BookScene({ book, view, onMove, leaves, active, onReady 
         />
         <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} />
       </Suspense>
-      {leaves && <FallingLeaves count={small ? 34 : 56} />}
+      {motif && <FallingLeaves kind={motif} count={Math.round((small ? 34 : 56) * (motif === 'snow' ? 1.6 : 1))} />}
     </Canvas>
   )
 }

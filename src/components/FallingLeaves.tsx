@@ -6,6 +6,8 @@ import * as THREE from 'three'
 
 // Reds and oranges of the tree on the first book's cover.
 const COLOURS = ['#c22a1c', '#dc4a1f', '#ea6a22', '#f28c2c', '#a82318', '#e8582a']
+// White and frost blues for snow.
+const SNOW = ['#ffffff', '#f4f7f8', '#e6eff6', '#d7e6f1']
 
 const TOP = 2.7 // above the top of the picture
 const GROUND = -1.27 // just above the book's shadow
@@ -60,11 +62,30 @@ function leafTexture() {
   return texture
 }
 
+/** A soft round snowflake, drawn in white. */
+function flakeTexture() {
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = 64
+  const draw = canvas.getContext('2d')!
+  const glow = draw.createRadialGradient(32, 32, 0, 32, 32, 30)
+  glow.addColorStop(0, 'rgba(255,255,255,1)')
+  glow.addColorStop(0.55, 'rgba(255,255,255,0.85)')
+  glow.addColorStop(1, 'rgba(255,255,255,0)')
+  draw.fillStyle = glow
+  draw.fillRect(0, 0, 64, 64)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+export type Motif = 'leaves' | 'snow'
+
 /**
- * Autumn leaves that drift down behind and beside the book, rest where its shadow
- * falls for a second or two, then vanish and start again from the top.
+ * Autumn leaves (or snow) that drift down behind and beside the book, rest where its
+ * shadow falls for a second or two, then vanish and start again from the top.
  */
-export function FallingLeaves({ count }: { count: number }) {
+export function FallingLeaves({ count, kind = 'leaves' }: { count: number; kind?: Motif }) {
+  const snow = kind === 'snow'
   const mesh = useRef<THREE.InstancedMesh>(null)
   const camera = useThree((s) => s.camera)
 
@@ -92,25 +113,25 @@ export function FallingLeaves({ count }: { count: number }) {
         rest,
         life,
         offset: random() * life,
-        size: 0.06 + random() * 0.045,
+        size: snow ? 0.022 + random() * 0.02 : 0.06 + random() * 0.045,
         spin: 0.5 + random(),
         phase: random() * Math.PI * 2,
-        colour: COLOURS[Math.floor(random() * COLOURS.length)],
+        colour: (snow ? SNOW : COLOURS)[Math.floor(random() * (snow ? SNOW : COLOURS).length)],
       }
     })
-  }, [count])
+  }, [count, snow])
 
   const geometry = useMemo(() => {
     const plane = new THREE.PlaneGeometry(2, 2, 6, 6)
     const points = plane.attributes.position
     // A slight curl, so a leaf does not look like a flat sticker.
     for (let i = 0; i < points.count; i++) {
-      points.setZ(i, points.getX(i) ** 2 * 0.3 - points.getY(i) ** 2 * 0.12)
+      if (!snow) points.setZ(i, points.getX(i) ** 2 * 0.3 - points.getY(i) ** 2 * 0.12)
     }
     plane.setAttribute('fade', new THREE.InstancedBufferAttribute(new Float32Array(count), 1))
     return plane
-  }, [count])
-  const texture = useMemo(() => leafTexture(), [])
+  }, [count, snow])
+  const texture = useMemo(() => (snow ? flakeTexture() : leafTexture()), [snow])
   useEffect(() => () => geometry.dispose(), [geometry])
   useEffect(() => () => texture.dispose(), [texture])
 

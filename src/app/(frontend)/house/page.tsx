@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import React from 'react'
 
+import { Flake } from '@/components/Flake'
 import type { Author, Book } from '@/payload-types'
 import { authorsOf, getBooks, getSettings } from '@/lib/data'
 
@@ -27,12 +28,15 @@ export default async function HousePage() {
 
   return (
     <>
-      <section className="house house-page">
-        <h1>The house</h1>
-        <p>{settings.introduction}</p>
-        {settings.philosophy && <p>{settings.philosophy}</p>}
+      <section className="page-head">
+        <p className="eyebrow" data-reveal>
+          Silent Flakes
+        </p>
+        <h1 data-scatter>The house</h1>
+        <p data-reveal>{settings.introduction}</p>
+        {settings.philosophy && <p data-reveal>{settings.philosophy}</p>}
         {settings.contactEmail && (
-          <p>
+          <p data-reveal>
             Write to us: <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
           </p>
         )}
@@ -40,10 +44,11 @@ export default async function HousePage() {
 
       {writers.size > 0 && (
         <section className="writers">
-          <h2>Our writers</h2>
-          <ul>
+          <h2 data-split>Our writers</h2>
+          <ul data-reveal="stagger">
             {[...writers.values()].map(({ author, books: written }) => (
               <li key={author.id}>
+                <Flake />
                 <h3>{author.name}</h3>
                 <p>
                   {written.map((book, i) => (

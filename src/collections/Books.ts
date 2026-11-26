@@ -78,6 +78,37 @@ export const Books: CollectionConfig = {
               admin: { description: 'Colours the spine and this book’s page. Example: #24405C' },
             },
             {
+              name: 'pageColour',
+              label: 'Page background colour',
+              type: 'text',
+              validate: hexColour,
+              admin: {
+                description:
+                  'The light colour behind this book’s page, taken from the cover (for example its paper tone). Leave empty for a soft tint of the cover colour.',
+              },
+            },
+            {
+              name: 'accentColour',
+              label: 'Accent colour',
+              type: 'text',
+              validate: hexColour,
+              admin: {
+                description: 'A second cover colour, used for highlights and the genre labels. Leave empty to use the cover colour.',
+              },
+            },
+            {
+              name: 'motif',
+              label: 'Falling around the book',
+              type: 'select',
+              defaultValue: 'none',
+              options: [
+                { label: 'Nothing', value: 'none' },
+                { label: 'Autumn leaves', value: 'leaves' },
+                { label: 'Snow', value: 'snow' },
+              ],
+              admin: { description: 'What drifts around the 3D book on this book’s page, to match its story.' },
+            },
+            {
               name: 'binding',
               type: 'select',
               required: true,
