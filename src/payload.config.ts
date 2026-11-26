@@ -49,6 +49,8 @@ export default buildConfig({
     // Hosted servers have no lasting disk, so uploaded images go to Vercel Blob.
     vercelBlobStorage({
       enabled: Boolean(blobToken),
+      // Keeps the database columns the same with or without Blob, so migrations match.
+      alwaysInsertFields: true,
       collections: { media: true },
       token: blobToken,
     }),
