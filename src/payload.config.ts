@@ -1,5 +1,7 @@
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -16,6 +18,11 @@ import { SiteSettings } from './globals/SiteSettings'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// A file database on your computer, Postgres when hosted.
+const databaseUrl = process.env.DATABASE_URL || ''
+const hosted = databaseUrl.startsWith('postgres')
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -31,11 +38,19 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URL || '',
-    },
-  }),
+  db: hosted
+    ? postgresAdapter({
+        pool: { connectionString: databaseUrl },
+        migrationDir: path.resolve(dirname, 'migrations'),
+      })
+    : sqliteAdapter({ client: { url: databaseUrl } }),
   sharp,
-  plugins: [],
+  plugins: [
+    // Hosted servers have no lasting disk, so uploaded images go to Vercel Blob.
+    vercelBlobStorage({
+      enabled: Boolean(blobToken),
+      collections: { media: true },
+      token: blobToken,
+    }),
+  ],
 })

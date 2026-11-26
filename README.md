@@ -20,6 +20,20 @@ npm run dev      # http://localhost:3000, dashboard at /admin
 The first account created at `/admin` becomes the administrator. Create it straight away:
 until it exists, anyone who can reach the server can create it.
 
+## Hosting on Vercel
+
+Set these environment variables in the Vercel project (never commit them):
+
+- `DATABASE_URL`: a Postgres connection string
+- `PAYLOAD_SECRET`: a new long random value, not the local one
+- `BLOB_READ_WRITE_TOKEN`: added by Vercel when a Blob store is connected
+
+Vercel runs `vercel-build`, which applies the migrations in `src/migrations` and then builds.
+After changing content fields, create a migration with a Postgres `DATABASE_URL`:
+`npm run payload -- migrate:create`.
+
+Open `/admin` immediately after the first deployment and create the administrator.
+
 ## Add a book
 
 In the dashboard: add the author (Authors), then the book (Books). Upload the cover, pick the
