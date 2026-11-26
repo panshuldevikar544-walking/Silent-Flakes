@@ -6,8 +6,14 @@ import React from 'react'
 
 import './styles.css'
 
+// The address search engines and link previews are given. SITE_URL wins (for a custom domain),
+// then the address Vercel provides for the live site.
+const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL
+const siteUrl =
+  process.env.SITE_URL || (vercelHost ? `https://${vercelHost}` : 'http://localhost:3000')
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(siteUrl),
   title: { default: 'Silent Flakes, a publishing house', template: '%s | Silent Flakes' },
   description: 'Silent Flakes is an independent publishing house.',
   openGraph: { siteName: 'Silent Flakes', type: 'website' },
@@ -25,8 +31,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Silent Flakes
           </Link>
           <nav aria-label="Main">
-            <Link href="/#books">Books</Link>
-            <Link href="/#house">The house</Link>
+            <Link href="/books">Books</Link>
+            <Link href="/house">The house</Link>
           </nav>
         </header>
         <main id="main">{children}</main>

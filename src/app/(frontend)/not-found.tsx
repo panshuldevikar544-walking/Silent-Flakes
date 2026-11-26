@@ -6,7 +6,7 @@ export default function NotFound() {
     <section className="house">
       <h1>That page is not here</h1>
       <p>
-        The book may have been renamed or withdrawn. <Link href="/#books">See all our books</Link>.
+        The book may have been renamed or withdrawn. <Link href="/books">See all our books</Link>.
       </p>
     </section>
   )

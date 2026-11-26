@@ -317,6 +317,80 @@ nav a:hover {
   margin-top: 3rem;
 }
 
+/* Pages that open on the dark panel need light header links. */
+body:has(main > .house:first-child) .site-header {
+  --header-colour: var(--snow);
+}
+
+.house-page {
+  min-height: 80svh;
+  padding-top: 8rem;
+}
+
+.house.house-page h1 {
+  margin-top: 0;
+}
+
+/* Books page: every published book, cover first */
+
+.library {
+  min-height: 80svh;
+  padding: 8rem var(--gutter) 6rem;
+}
+
+.library > p {
+  margin-top: 2rem;
+}
+
+.library ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 18rem));
+  gap: 3.5rem 2.5rem;
+  margin-top: 3rem;
+}
+
+.library a {
+  display: block;
+  text-decoration: none;
+}
+
+.library-cover {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  padding: 0;
+  box-shadow: 0 24px 40px -24px rgb(15 27 36 / 0.55);
+  transition: translate 0.3s ease;
+}
+
+span.library-cover {
+  padding: 10%;
+  font: 700 1.6rem/1.15 var(--display);
+}
+
+.library a:hover .library-cover,
+.library a:focus-visible .library-cover {
+  translate: 0 -0.5rem;
+}
+
+.library h2 {
+  margin-top: 1.25rem;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.library a:hover h2 {
+  text-decoration: underline;
+}
+
+.library li p {
+  margin-top: 0.25rem;
+  color: var(--slate);
+}
+
 .site-footer {
   display: flex;
   flex-wrap: wrap;
@@ -553,7 +627,8 @@ body:has(.book-hero.light-text) .site-header {
     scroll-behavior: auto;
   }
 
-  .spine {
+  .spine,
+  .library-cover {
     transition: none;
   }
 }
