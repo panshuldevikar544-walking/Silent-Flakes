@@ -1,164 +1,559 @@
 :root {
-  --font-mono: 'Roboto Mono', monospace;
+  --sky: #b4c6d1;
+  --snow: #f4f7f8;
+  --ink: #0f1b24;
+  --slate: #475b69;
+  --line: #cdd7dd;
+  --display: 'Schibsted Grotesk Variable', sans-serif;
+  --text: 'Literata Variable', Georgia, serif;
+  --gutter: clamp(1.25rem, 5vw, 5rem);
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-  font-size: 18px;
-  line-height: 32px;
-
-  background: rgb(0, 0, 0);
-  -webkit-font-smoothing: antialiased;
-}
-
-html,
-body,
-#app {
-  height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: system-ui;
-  font-size: 18px;
-  line-height: 32px;
+  background: var(--snow);
+  color: var(--ink);
+  font: 1.0625rem/1.65 var(--text);
+  -webkit-font-smoothing: antialiased;
+}
 
-  margin: 0;
-  color: rgb(1000, 1000, 1000);
+h1,
+h2,
+h3,
+h4,
+.wordmark,
+.button,
+nav,
+button {
+  font-family: var(--display);
+}
 
-  @media (max-width: 1024px) {
-    font-size: 15px;
-    line-height: 24px;
-  }
+h1 {
+  font-size: clamp(2.8rem, 7.2vw, 7rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+h2 {
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+h3 {
+  font-size: 1.35rem;
+  line-height: 1.3;
+}
+
+h4 {
+  font-size: 1.05rem;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
 }
 
 img {
   max-width: 100%;
   height: auto;
-  display: block;
 }
 
-h1 {
-  margin: 40px 0;
-  font-size: 64px;
-  line-height: 70px;
-  font-weight: bold;
-
-  @media (max-width: 1024px) {
-    margin: 24px 0;
-    font-size: 42px;
-    line-height: 42px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 38px;
-    line-height: 38px;
-  }
-
-  @media (max-width: 400px) {
-    font-size: 32px;
-    line-height: 32px;
-  }
+.skip {
+  position: absolute;
+  left: -999px;
+  background: var(--ink);
+  color: var(--snow);
+  padding: 0.75rem 1rem;
+  z-index: 10;
 }
 
-p {
-  margin: 24px 0;
-
-  @media (max-width: 1024px) {
-    margin: calc(var(--base) * 0.75) 0;
-  }
+.skip:focus {
+  left: 0;
 }
 
-a {
-  color: currentColor;
-
-  &:focus {
-    opacity: 0.8;
-    outline: none;
-  }
-
-  &:active {
-    opacity: 0.7;
-    outline: none;
-  }
+.site-header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.5rem var(--gutter);
+  color: var(--header-colour, var(--ink));
 }
 
-svg {
-  vertical-align: middle;
+.wordmark {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
 }
 
-.home {
+nav {
+  display: flex;
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+nav a {
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.button {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--snow);
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  padding: 0.8rem 1.5rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.button:hover {
+  text-decoration: underline;
+}
+
+/* Home */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  min-height: min(100svh, 62rem);
+  padding: 6rem var(--gutter) 2rem;
+  background: linear-gradient(var(--sky) 55%, var(--snow));
+}
+
+.hero-copy > p {
+  max-width: 34rem;
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
+
+.hero-featured {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin-top: 2.5rem;
+}
+
+/* 3D stage */
+
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.stage-canvas {
+  position: relative;
+  width: 100%;
+  height: clamp(24rem, 68svh, 42rem);
+}
+
+.stage-canvas > div:not(.flat-cover) {
+  position: absolute !important;
+  inset: 0;
+}
+
+.flat-cover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  height: 70%;
+  aspect-ratio: 2 / 3;
+  box-shadow: 0 30px 50px -25px rgb(15 27 36 / 0.55);
+  color: #fff;
+  font-family: var(--display);
+}
+
+.flat-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flat-cover span {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  height: 100vh;
-  padding: 45px;
-  max-width: 1024px;
-  margin: 0 auto;
+  height: 100%;
+  padding: 8%;
+}
+
+.flat-cover strong {
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+
+.stage-views {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stage-views button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.25rem;
+  cursor: pointer;
+}
+
+.stage-views button[aria-pressed='true'] {
+  border-bottom-color: currentColor;
+  font-weight: 700;
+}
+
+/* Catalogue: each book is introduced by its spine */
+
+.catalogue,
+.house {
+  padding: 6rem var(--gutter);
+}
+
+.catalogue ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+  gap: 3.5rem 3rem;
+  margin-top: 3rem;
+}
+
+.catalogue a {
+  display: flex;
+  gap: 1.5rem;
+  height: 100%;
+  text-decoration: none;
+}
+
+.spine {
+  flex: 0 0 4.25rem;
+  height: 18rem;
+  writing-mode: vertical-rl;
+  padding: 1rem 0;
   overflow: hidden;
+  text-align: start;
+  font: 700 1.15rem/4.25rem var(--display);
+  white-space: nowrap;
+  box-shadow:
+    inset 6px 0 10px -6px rgb(255 255 255 / 0.45),
+    inset -8px 0 12px -8px rgb(0 0 0 / 0.6);
+  transition: translate 0.35s ease;
+}
 
-  @media (max-width: 400px) {
-    padding: 24px;
+/* The book is pulled off the shelf. */
+.catalogue a:hover .spine,
+.catalogue a:focus-visible .spine {
+  translate: 0 -1rem;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-self: end;
+  gap: 0.35rem;
+}
+
+.entry strong {
+  font: 700 1.6rem/1.15 var(--display);
+  letter-spacing: -0.02em;
+}
+
+.entry-intro {
+  color: var(--slate);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.entry-status {
+  font: 600 0.95rem var(--display);
+}
+
+.house {
+  background: var(--ink);
+  color: var(--snow);
+  min-height: 20rem;
+}
+
+.house p {
+  max-width: 42rem;
+  margin-top: 2rem;
+  font-size: 1.35rem;
+}
+
+.house h1 {
+  margin-top: 3rem;
+}
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 3rem var(--gutter);
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+
+/* Book page: the page takes its colour from the cover */
+
+.book-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 2rem;
+  min-height: min(100svh, 66rem);
+  padding: 6rem var(--gutter) 2rem;
+  background: var(--book);
+  color: var(--on-book);
+}
+
+body:has(.book-hero.light-text) .site-header {
+  --header-colour: #fff;
+}
+
+/* Lighter backdrop so the book stands apart from its own colour. */
+.book-hero .stage {
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.28), transparent);
+}
+
+.book-heading h1 {
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+}
+
+.subtitle {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-top: 1.25rem;
+  font: 600 1.1rem var(--display);
+}
+
+.byline span {
+  font-weight: 400;
+}
+
+.intro {
+  max-width: 34rem;
+  margin-top: 1.5rem;
+}
+
+.status {
+  margin-top: 1.5rem;
+  font: 600 1rem var(--display);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.book-hero .button {
+  background: var(--on-book);
+  border-color: var(--on-book);
+  color: var(--book);
+}
+
+.book-hero .button.quiet {
+  background: transparent;
+  color: var(--on-book);
+}
+
+.countdown {
+  display: flex;
+  gap: 1.75rem;
+  margin-top: 1rem;
+  font-family: var(--display);
+}
+
+.countdown div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.countdown dd {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.announcement {
+  padding: 2.5rem var(--gutter);
+  font-size: 1.35rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 2rem 4rem;
+  padding: 5rem var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.chapter > div {
+  max-width: 40rem;
+}
+
+.chapter h3 {
+  margin: 2rem 0 0.5rem;
+}
+
+.chapter h4 {
+  margin: 1.5rem 0 0.25rem;
+}
+
+.chapter > div > :first-child {
+  margin-top: 0;
+}
+
+.chapter ul,
+.chapter ol {
+  padding-left: 1.25rem;
+}
+
+.prose {
+  white-space: pre-line;
+  margin-bottom: 1rem;
+}
+
+.sample {
+  border-left: 4px solid var(--book);
+  padding-left: 1.5rem;
+}
+
+.portrait {
+  width: 12rem;
+  margin-bottom: 1.5rem;
+}
+
+.specs div {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.specs dt {
+  color: var(--slate);
+}
+
+.chapter .stores,
+.chapter .related {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.note {
+  margin-top: 1rem;
+  color: var(--slate);
+  font-size: 0.95rem;
+}
+
+.chapter .related {
+  gap: 2rem;
+}
+
+.related a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 9rem;
+  font: 650 1rem/1.3 var(--display);
+}
+
+.related span {
+  display: block;
+  aspect-ratio: 2 / 3;
+}
+
+#inside,
+#buy {
+  scroll-margin-top: 1rem;
+}
+
+@media (max-width: 800px) {
+  .hero,
+  .book-hero,
+  .chapter {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-
-    h1 {
-      text-align: center;
-    }
+  .hero,
+  .book-hero {
+    min-height: 0;
+    padding-top: 5.5rem;
   }
 
-  .links {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    a {
-      text-decoration: none;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-    }
-
-    .admin {
-      color: rgb(0, 0, 0);
-      background: rgb(1000, 1000, 1000);
-      border: 1px solid rgb(0, 0, 0);
-    }
-
-    .docs {
-      color: rgb(1000, 1000, 1000);
-      background: rgb(0, 0, 0);
-      border: 1px solid rgb(1000, 1000, 1000);
-    }
+  .stage-canvas {
+    height: min(26rem, 62svh);
   }
 
-  .footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  /* On a phone the book comes first on its own page. */
+  .book-hero .stage {
+    order: -1;
+  }
 
-    @media (max-width: 1024px) {
-      flex-direction: column;
-      gap: 6px;
-    }
+  .chapter {
+    padding-block: 3.5rem;
+  }
 
-    p {
-      margin: 0;
-    }
+  .specs div {
+    grid-template-columns: 8rem 1fr;
+  }
+}
 
-    .codeLink {
-      text-decoration: none;
-      padding: 0 0.5rem;
-      background: rgb(60, 60, 60);
-      border-radius: 4px;
-    }
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .spine {
+    transition: none;
   }
 }

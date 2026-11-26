@@ -1,67 +1,57 @@
-# Payload Blank Template
+# Silent Flakes
 
-This template comes configured with the bare minimum to get started on anything you need.
+Website for the Silent Flakes publishing house. Visitors browse books; buying happens on
+Amazon, Flipkart or another store. The site takes no payments.
 
-## Quick start
+Next.js (App Router) with the Payload CMS dashboard in the same app, SQLite for local use,
+React Three Fiber for the 3D books.
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+## Run it
 
-## Quick Start - local setup
+Needs Node `^22.23.5`, `^24.22.3` or `>=26.13.1`.
 
-To spin up this template locally, follow these steps:
+```
+npm install
+# create .env with DATABASE_URL=file:./silent-flakes.db and PAYLOAD_SECRET=<long random text>
+npm run seed     # placeholder books, only on an empty database
+npm run dev      # http://localhost:3000, dashboard at /admin
+```
 
-### Clone
+The first account created at `/admin` becomes the administrator. Create it straight away:
+until it exists, anyone who can reach the server can create it.
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+## Add a book
 
-### Development
+In the dashboard: add the author (Authors), then the book (Books). Upload the cover, pick the
+cover colour, add the store links (`https` only) and set visibility to Published. The 3D book,
+page colour and shelf spine are made from those fields. Without a cover image, a plain
+typographic cover is drawn.
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+## Where things are
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+| Path | What |
+| --- | --- |
+| `src/collections`, `src/globals` | Content fields and who can read or change them |
+| `src/app/(frontend)` | Public pages and styles |
+| `src/app/go` | Buy-link redirect that counts clicks (clicks, not sales; no cookies) |
+| `src/components` | 3D book, countdown |
+| `blender/` | Script for the book parts; `npm run models` rebuilds them (Blender 5.3) |
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+## Checks
 
-#### Docker (Optional)
+```
+npm run lint
+npm run build
+```
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+## Not done yet
 
-To do so, follow these steps:
+Catalogue search and filters, author pages, page-turning previews, analytics screen, sitemap
+and robots file, accessibility and speed testing, hosting setup (Postgres, file storage,
+email for password resets, database migrations).
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+## Licences
 
-## How it works
-
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
-
-### Collections
-
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
-
-- #### Users (Authentication)
-
-  Users are auth-enabled collections that have access to the admin panel.
-
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
-
-- #### Media
-
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
-
-### Docker
-
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+Fonts: Schibsted Grotesk and Literata (SIL OFL). GSAP is free under its standard
+"no charge" licence, which is not an open-source licence. Three.js, React Three Fiber, drei,
+Next.js and Payload are MIT.
