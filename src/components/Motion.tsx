@@ -11,8 +11,6 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
 
 let lenis: Lenis | null = null
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 /**
  * Smooth scrolling and the scroll-driven motion of every page. Pages mark what moves
  * with data attributes, so they stay server-rendered:
@@ -30,7 +28,6 @@ export function Motion() {
 
   // One smooth scroller for the whole visit.
   useEffect(() => {
-    if (reducedMotion()) return
     lenis = new Lenis({ lerp: 0.11, anchors: { offset: -84 } })
     lenis.on('scroll', ScrollTrigger.update)
     const tick = (time: number) => lenis?.raf(time * 1000)
@@ -45,7 +42,6 @@ export function Motion() {
 
   // The motion of the page now shown, rebuilt on every page change.
   useEffect(() => {
-    if (reducedMotion()) return
     lenis?.scrollTo(0, { immediate: true, force: true })
 
     const ctx = gsap.context(() => {

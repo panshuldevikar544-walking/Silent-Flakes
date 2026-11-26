@@ -19,7 +19,7 @@ export function GenreFilter({ genres }: { genres: string[] }) {
     document.querySelectorAll<HTMLElement>('[data-group]').forEach((group) => {
       group.hidden = !group.querySelector('[data-genres]:not([hidden])')
     })
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    {
       gsap.fromTo(
         [...cards].filter((c) => !c.hidden),
         { y: 24, opacity: 0 },

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 }
 
 // Before the page is drawn: hide what will animate in, unless the visitor asks for less motion.
-const motionScript = `if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('motion')`
+const motionScript = `document.documentElement.classList.add('motion')`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

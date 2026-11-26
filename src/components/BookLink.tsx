@@ -10,7 +10,7 @@ const WIPE = 'book-wipe'
  * A link to a book page that opens it with a show: the card's colour floods the screen
  * from the card outwards while the cover lifts off, flies to the middle and turns
  * towards you. The book page then lifts the colour away (see BookEntrance).
- * Ctrl/Cmd-click, middle-click and reduced-motion visitors get a plain link.
+ * Ctrl/Cmd-click and middle-click get a plain link.
  */
 export function BookLink({
   href,
@@ -38,7 +38,6 @@ export function BookLink({
       event.ctrlKey ||
       event.shiftKey ||
       event.altKey ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
       document.getElementById(WIPE)
     ) {
       return

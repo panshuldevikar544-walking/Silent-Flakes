@@ -1827,13 +1827,6 @@ img {
 
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-blob,
-  .process-blob,
-  .house-panel > .house-badge {
-    animation: none;
-  }
-}
 
 @media (max-width: 960px) {
   .site-tagline {
@@ -1915,18 +1908,3 @@ img {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .button,
-  .book-card-inner,
-  .book-card-cover img,
-  .book-card-cover .cover-placeholder,
-  .book-card-open svg,
-  .upcoming-cover img,
-  .upcoming-cover .cover-placeholder,
-  .related span,
-  .wordmark .flake,
-  .text-link::after,
-  .site-header nav a::after {
-    transition: none;
-  }
-}

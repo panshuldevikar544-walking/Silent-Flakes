@@ -16,7 +16,6 @@ const SEEN = 'sf-intro-seen'
  */
 export function IntroMotion() {
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const first = !sessionStorage.getItem(SEEN)
     const flat = '0px 0px 0px 0px rgba(0,0,0,0), 0px 0px 0px 0px rgba(0,0,0,0)'
 

@@ -4,8 +4,7 @@ import { useEffect, useRef } from 'react'
 
 /**
  * A quiet snowfall behind the home page opening: small, pale, slow flakes that never compete
- * with the book. It stops while the page is hidden or scrolled away, and visitors who ask for
- * less motion get a still scatter of flakes instead.
+ * with the book. It stops while the page is hidden or scrolled away.
  */
 export function SnowField() {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -14,7 +13,6 @@ export function SnowField() {
     const canvas = ref.current
     const context = canvas?.getContext('2d')
     if (!canvas || !context) return
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     type Flake = { x: number; y: number; r: number; speed: number; sway: number; phase: number; alpha: number }
     let flakes: Flake[] = []
@@ -69,7 +67,7 @@ export function SnowField() {
 
     const start = () => {
       cancelAnimationFrame(frame)
-      if (!still && visible && !document.hidden) frame = requestAnimationFrame(tick)
+      if (visible && !document.hidden) frame = requestAnimationFrame(tick)
     }
 
     size()

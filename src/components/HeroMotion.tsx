@@ -13,7 +13,6 @@ gsap.registerPlugin(ScrollTrigger)
  */
 export function HeroMotion() {
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const hero = document.querySelector<HTMLElement>('[data-hero]')
     if (!hero) return
 
