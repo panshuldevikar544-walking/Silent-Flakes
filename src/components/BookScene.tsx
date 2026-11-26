@@ -8,6 +8,7 @@ import * as THREE from 'three'
 
 import type { BookVisual } from '@/lib/data'
 import { backCover, spineArt, titleCover } from './bookTextures'
+import { FallingLeaves } from './FallingLeaves'
 import type { View } from './BookStage'
 
 const MODEL = '/models/book_parts.glb'
@@ -27,7 +28,7 @@ type Props = {
   /** The chosen side, or null once the book has moved away from it. */
   view: View | null
   onMove: () => void
-  flakes: boolean
+  leaves: boolean
   active: boolean
   onReady: () => void
 }
@@ -49,7 +50,7 @@ function CoverImage({ url, ...mesh }: { url: string } & React.ComponentProps<'me
   )
 }
 
-function Book({ book, view, onMove, onReady }: Omit<Props, 'flakes' | 'active'>) {
+function Book({ book, view, onMove, onReady }: Omit<Props, 'leaves' | 'active'>) {
   const { nodes } = useGLTF(MODEL, false) as unknown as { nodes: Record<string, THREE.Mesh> }
   const [clothMap, pageMap] = useLoader(THREE.TextureLoader, [
     '/textures/cloth_normal.png',
@@ -249,60 +250,6 @@ function Book({ book, view, onMove, onReady }: Omit<Props, 'flakes' | 'active'>)
   )
 }
 
-const seededRandom = (start: number) => {
-  let seed = start
-  return () => (seed = (seed * 16807) % 2147483647) / 2147483647
-}
-
-/** Torn paper flakes falling slowly behind and around the book. */
-function Flakes({ count }: { count: number }) {
-  const mesh = useRef<THREE.InstancedMesh>(null)
-  const flakes = useMemo(() => {
-    // Fixed seed so the fall looks the same on every visit.
-    const random = seededRandom(11)
-    return Array.from({ length: count }, () => ({
-      x: (random() - 0.5) * 8,
-      y: random() * 6,
-      // Always behind the book, so a flake never looks like a mark on the cover.
-      z: -0.9 - random() * 2.2,
-      size: 0.035 + random() * 0.065,
-      speed: 0.08 + random() * 0.16,
-      spin: 0.3 + random(),
-      phase: random() * Math.PI * 2,
-    }))
-  }, [count])
-  const dummy = useMemo(() => new THREE.Object3D(), [])
-
-  const place = (time: number) => {
-    flakes.forEach((f, i) => {
-      const y = ((((f.y - time * f.speed) % 6) + 6) % 6) - 3
-      dummy.position.set(f.x + Math.sin(time * 0.4 + f.phase) * 0.2, y, f.z)
-      dummy.rotation.set(time * f.spin * 0.5 + f.phase, time * f.spin * 0.3, f.phase)
-      dummy.scale.set(f.size, f.size * 0.68, f.size)
-      dummy.updateMatrix()
-      mesh.current!.setMatrixAt(i, dummy.matrix)
-    })
-    mesh.current!.instanceMatrix.needsUpdate = true
-  }
-
-  useLayoutEffect(() => place(0))
-  useFrame(({ clock }) => place(clock.elapsedTime))
-
-  return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
-      <circleGeometry args={[1, 5]} />
-      {/* Lit paper: each scrap changes shade as it turns. */}
-      <meshStandardMaterial
-        color="#ffffff"
-        emissive="#ffffff"
-        emissiveIntensity={0.35}
-        roughness={0.9}
-        side={THREE.DoubleSide}
-      />
-    </instancedMesh>
-  )
-}
-
 /** Pulls the camera back on narrow screens so the book always fits. */
 function Framing() {
   const { camera, size, invalidate } = useThree()
@@ -315,7 +262,7 @@ function Framing() {
   return null
 }
 
-export default function BookScene({ book, view, onMove, flakes, active, onReady }: Props) {
+export default function BookScene({ book, view, onMove, leaves, active, onReady }: Props) {
   const [small] = useState(() => window.innerWidth < 700)
   const [fontReady, setFontReady] = useState(false)
 
@@ -363,7 +310,7 @@ export default function BookScene({ book, view, onMove, flakes, active, onReady 
         />
         <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} />
       </Suspense>
-      {flakes && <Flakes count={small ? 45 : 110} />}
+      {leaves && <FallingLeaves count={small ? 34 : 56} />}
     </Canvas>
   )
 }

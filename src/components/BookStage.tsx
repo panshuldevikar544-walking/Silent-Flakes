@@ -54,7 +54,7 @@ const supportsWebGL = () => {
 const never = () => () => {}
 const onServer = () => false
 
-export function BookStage({ book, flakes = false }: { book: BookVisual; flakes?: boolean }) {
+export function BookStage({ book, leaves = false }: { book: BookVisual; leaves?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const can3d = useSyncExternalStore(never, supportsWebGL, onServer)
   const [ready, setReady] = useState(false)
@@ -87,7 +87,7 @@ export function BookStage({ book, flakes = false }: { book: BookVisual; flakes?:
               book={book}
               view={view}
               onMove={clearView}
-              flakes={flakes}
+              leaves={leaves}
               active={visible}
               onReady={showReady}
             />

@@ -26,7 +26,7 @@ export default async function HomePage() {
             </div>
           )}
         </div>
-        {featured && <BookStage book={bookVisual(featured)} flakes />}
+        {featured && <BookStage book={bookVisual(featured)} leaves />}
       </section>
 
       <section className="catalogue" id="books">
