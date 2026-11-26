@@ -117,7 +117,7 @@ export function BookLink({
   }
 
   return (
-    <a ref={ref} href={href} className={className} onClick={open} onMouseEnter={() => router.prefetch(href)} aria-label={label} {...data}>
+    <a ref={ref} href={href} data-transition="none" className={className} onClick={open} onMouseEnter={() => router.prefetch(href)} aria-label={label} {...data}>
       {children}
     </a>
   )

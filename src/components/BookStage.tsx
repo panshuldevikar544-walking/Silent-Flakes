@@ -66,6 +66,15 @@ export function BookStage({ book, motif = null }: { book: BookVisual; motif?: Mo
   const clearView = useCallback(() => setView(null), [])
   const showReady = useCallback(() => setReady(true), [])
 
+  // Tell the page the book is ready to show (see IntroMotion), once, on the stage itself.
+  // (Asks WebGL directly: while the page hydrates, can3d still holds the server's "no".)
+  useEffect(() => {
+    const stage = ref.current
+    if (!(ready || !supportsWebGL()) || !stage || stage.dataset.ready) return
+    stage.dataset.ready = '1'
+    stage.dispatchEvent(new CustomEvent('stage-ready', { bubbles: true }))
+  }, [ready])
+
   // Stop drawing when the book is scrolled out of sight.
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting))

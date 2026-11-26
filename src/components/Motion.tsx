@@ -7,6 +7,8 @@ import Lenis from 'lenis'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 
+import { coverLead } from './PageTransition'
+
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
 let lenis: Lenis | null = null
@@ -58,7 +60,7 @@ export function Motion() {
               duration: 1.1,
               ease: 'expo.out',
               stagger: 0.09,
-              delay: Number(el.dataset.delay ?? 0.15),
+              delay: Number(el.dataset.delay ?? 0.15) + coverLead(),
               scrollTrigger: { trigger: el, start: 'top 92%', once: true },
             }),
         })
@@ -79,7 +81,7 @@ export function Motion() {
           duration: 1.3,
           ease: 'expo.out',
           stagger: { each: 0.025, from: 'random' },
-          delay: Number(el.dataset.delay ?? 0.1),
+          delay: Number(el.dataset.delay ?? 0.1) + coverLead(),
         })
       })
 

@@ -4,15 +4,16 @@ import gsap from 'gsap'
 import { SplitText } from 'gsap/SplitText'
 import { useEffect } from 'react'
 
+import { coverLead } from './PageTransition'
+
 gsap.registerPlugin(SplitText)
 
 const SEEN = 'sf-intro-seen'
 
 /**
  * The home page's arrival: the headline's letters fly in from scattered places, the book
- * spins in on a spring, and the rest settles round them. The first visit in a session gets
- * the full pace; coming back to the home page later plays it a little faster. Visitors who
- * ask for less motion see the page as it is.
+ * rises into view once it is ready, and the rest settles round them. The first visit in a
+ * session gets the full pace; coming back to the home page later plays it a little faster.
  */
 export function IntroMotion() {
   useEffect(() => {
@@ -26,6 +27,8 @@ export function IntroMotion() {
 
       // The hero waits hidden (see .motion in the styles) until this shows it.
       gsap.set('.hero-copy, .hero-book', { visibility: 'visible' })
+      // The book waits, unseen, until it is ready, then arrives once (below).
+      gsap.set('.hero-book .stage', { autoAlpha: 0 })
 
       const tl = gsap.timeline({
         defaults: { ease: 'expo.out' },
@@ -33,21 +36,7 @@ export function IntroMotion() {
       })
 
       if (first) tl.from('.site-header', { yPercent: -110, duration: 1 }, 0)
-      // Only the drawing itself turns and grows: the 3D view measures its box (transforms
-      // included) to size itself, so the box around it must stay still.
-      tl.add(() => {
-        const drawing = document.querySelector('.hero-book canvas, .hero-book .flat-cover')
-        if (!drawing) return
-        gsap.from(drawing, {
-          scale: 0.1,
-          rotate: -40,
-          autoAlpha: 0,
-          duration: 1.8,
-          ease: 'elastic.out(1, 0.55)',
-        })
-      }, 0.1)
-        .from('.hero-book .stage-views', { autoAlpha: 0, y: 20, duration: 0.8 }, 0.9)
-        .from('.hero-copy .eyebrow', { autoAlpha: 0, x: -50, duration: 1 }, 0.1)
+      tl.from('.hero-copy .eyebrow', { autoAlpha: 0, x: -50, duration: 1 }, 0.1)
         .from(
           letters,
           {
@@ -73,9 +62,38 @@ export function IntroMotion() {
         .from('.hero-blobs', { yPercent: 35, autoAlpha: 0, duration: 1.6 }, 0)
 
       if (!first) tl.timeScale(1.35)
+      tl.delay(coverLead())
     })
 
-    return () => ctx.revert()
+    // The book's one entrance. The 3D book turns from its spine to its cover by itself
+    // (BookScene); here it rises out of the page and comes into view while it turns. It
+    // waits for the 3D book, so the flat stand-in never shows first. Only the drawing
+    // moves: the 3D view measures its box, so the boxes around it stay still.
+    const stage = document.querySelector<HTMLElement>('.hero-book .stage')
+    let shown = false
+    const arrive = () => {
+      if (shown || !stage) return
+      shown = true
+      const drawing = stage.querySelector('canvas, .flat-cover')
+      const views = stage.querySelector('.stage-views')
+      ctx.add(() => {
+        const timeline = gsap
+          .timeline({ delay: 0.15 + coverLead() })
+          .to(stage, { autoAlpha: 1, duration: 0.9, ease: 'power2.out' }, 0)
+        if (drawing) timeline.from(drawing, { y: 90, scale: 0.82, duration: 1.9, ease: 'expo.out' }, 0)
+        if (views) timeline.from(views, { autoAlpha: 0, y: 20, duration: 0.8, ease: 'expo.out' }, 0.9)
+      })
+    }
+    if (stage?.dataset.ready) arrive()
+    stage?.addEventListener('stage-ready', arrive)
+    // If the 3D book is slow, show the flat cover rather than an empty space.
+    const wait = window.setTimeout(arrive, 3500)
+
+    return () => {
+      window.clearTimeout(wait)
+      stage?.removeEventListener('stage-ready', arrive)
+      ctx.revert()
+    }
   }, [])
 
   return null

@@ -9,6 +9,7 @@ import React from 'react'
 
 import { Flake } from '@/components/Flake'
 import { Motion } from '@/components/Motion'
+import { PageTransition } from '@/components/PageTransition'
 import { SiteNav } from '@/components/SiteNav'
 
 import './styles.css'
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: { siteName: 'Silent Flakes', type: 'website' },
 }
 
-// Before the page is drawn: hide what will animate in, unless the visitor asks for less motion.
+// Before the page is drawn: hide what will animate in.
 const motionScript = `document.documentElement.classList.add('motion')`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </footer>
         <Motion />
+        <PageTransition />
       </body>
     </html>
   )

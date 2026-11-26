@@ -1267,6 +1267,17 @@ img {
   scroll-margin-top: calc(var(--header) + 1rem);
 }
 
+/* The change between pages: a snowstorm drawn over everything (see PageTransition) */
+
+#page-storm {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
 /* The flying cover during the opening show: front and back, so the spin never mirrors it */
 
 .book-wipe-cover {

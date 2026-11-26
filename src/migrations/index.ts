@@ -1,6 +1,7 @@
 import * as migration_20261126_160019_initial from './20261126_160019_initial';
 import * as migration_20261126_164659_add_upload_object_key from './20261126_164659_add_upload_object_key';
 import * as migration_20261126_184049_add_book_theme from './20261126_184049_add_book_theme';
+import * as migration_20261127_120000_leaves_for_a_heart_rewritten from './20261127_120000_leaves_for_a_heart_rewritten';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20261126_184049_add_book_theme.up,
     down: migration_20261126_184049_add_book_theme.down,
-    name: '20261126_184049_add_book_theme'
+    name: '20261126_184049_add_book_theme',
+  },
+  {
+    up: migration_20261127_120000_leaves_for_a_heart_rewritten.up,
+    down: migration_20261127_120000_leaves_for_a_heart_rewritten.down,
+    name: '20261127_120000_leaves_for_a_heart_rewritten',
   },
 ];
