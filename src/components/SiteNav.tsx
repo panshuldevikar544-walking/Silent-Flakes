@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 const links = [
+  { href: '/', label: 'Home' },
   { href: '/books', label: 'Books' },
   { href: '/house', label: 'The house' },
 ]
@@ -15,7 +16,7 @@ export function SiteNav() {
   return (
     <nav aria-label="Main">
       {links.map(({ href, label }) => {
-        const current = path === href || path.startsWith(`${href}/`)
+        const current = href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`)
         return (
           <Link key={href} href={href} aria-current={current ? 'page' : undefined}>
             {label}

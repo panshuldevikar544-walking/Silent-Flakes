@@ -749,3 +749,20 @@ body:has(.book-hero.light-text) .site-header {
     transition: none;
   }
 }
+
+/* Three menu links on a narrow phone: keep each on one line and the menu on screen. */
+@media (max-width: 480px) {
+  .site-header .wordmark {
+    font-size: 1.1rem;
+  }
+
+  nav {
+    gap: 0.125rem;
+    margin-inline-end: -0.35rem;
+  }
+
+  nav a {
+    padding-inline: 0.35rem;
+    white-space: nowrap;
+  }
+}
