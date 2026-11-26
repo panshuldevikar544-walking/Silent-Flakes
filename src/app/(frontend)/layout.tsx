@@ -4,6 +4,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import React from 'react'
 
+import { SiteNav } from '@/components/SiteNav'
+
 import './styles.css'
 
 // The address search engines and link previews are given. SITE_URL wins (for a custom domain),
@@ -30,10 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Link href="/" className="wordmark">
             Silent Flakes
           </Link>
-          <nav aria-label="Main">
-            <Link href="/books">Books</Link>
-            <Link href="/house">The house</Link>
-          </nav>
+          <SiteNav />
         </header>
         <main id="main">{children}</main>
         <footer className="site-footer">

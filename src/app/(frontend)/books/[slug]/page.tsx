@@ -47,6 +47,9 @@ export default async function BookPage(props: Props) {
   const genres = genresOf(book)
   const available = book.status === 'available'
   const links = book.buyLinks ?? []
+  const byStore = new Map<string, typeof links>()
+  for (const link of links) byStore.set(link.store, [...(byStore.get(link.store) ?? []), link])
+  const stores = [...byStore.entries()]
   const hasPreview = Boolean(book.contents?.length || book.sample || book.samplePages?.length)
   const others = (await getBooks()).filter((b) => b.id !== book.id)
   const authorIds = new Set(authors.map((a) => a.id))
@@ -243,22 +246,36 @@ export default async function BookPage(props: Props) {
             <p>Store links will appear here when the book goes on sale.</p>
           ) : (
             <>
+              {/* One row per store, with a button for each format it sells. */}
               <ul className="stores">
-                {links.map((link) => (
-                  <li key={link.id}>
-                    {/* Plain link: prefetching would be counted as a click. */}
-                    <a
-                      className="button"
-                      href={`/go/${encodeURIComponent(book.slug!)}/${link.id}`}
-                      target="_blank"
-                      rel="noopener nofollow"
-                    >
-                      Buy on {link.store}
-                      {link.format ? ` (${link.format})` : ''}
-                    </a>
+                {stores.map(([store, storeLinks]) => (
+                  <li key={store}>
+                    <h3>{store}</h3>
+                    <div>
+                      {storeLinks.map((link) => (
+                        // Plain link: prefetching would be counted as a click.
+                        <a
+                          key={link.id}
+                          className="button"
+                          href={`/go/${encodeURIComponent(book.slug!)}/${link.id}`}
+                          target="_blank"
+                          rel="noopener nofollow"
+                        >
+                          {link.format ? (
+                            <>
+                              <span className="visually-hidden">Buy on {store}, </span>
+                              {link.format}
+                            </>
+                          ) : (
+                            `Buy on ${store}`
+                          )}
+                        </a>
+                      ))}
+                    </div>
                   </li>
                 ))}
               </ul>
+              {book.price && <p className="note">{book.price}</p>}
               <p className="note">Stores open in a new tab. Payment happens on the store’s own website.</p>
             </>
           )}

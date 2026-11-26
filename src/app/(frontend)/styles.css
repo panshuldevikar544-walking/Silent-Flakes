@@ -96,9 +96,9 @@ img {
   z-index: 2;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 1rem;
-  padding: 1.5rem var(--gutter);
+  padding: 1rem var(--gutter);
   color: var(--header-colour, var(--ink));
 }
 
@@ -111,15 +111,24 @@ img {
 
 nav {
   display: flex;
-  gap: clamp(1rem, 3vw, 2.5rem);
+  gap: clamp(0.5rem, 2.5vw, 2rem);
+  margin-inline-end: -0.5rem;
 }
 
+/* At least 44px tall so the links are easy to tap. */
 nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
   text-decoration: none;
+  text-decoration-thickness: 2px;
 }
 
-nav a:hover {
+nav a:hover,
+nav a[aria-current='page'] {
   text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .button {
@@ -323,8 +332,34 @@ body:has(main > .house:first-child) .site-header {
 }
 
 .house-page {
-  min-height: 80svh;
+  min-height: 60svh;
   padding-top: 8rem;
+}
+
+/* The house page: the writers of the published books */
+.writers {
+  padding: 5rem var(--gutter) 6rem;
+}
+
+.writers ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+}
+
+.writers h3 {
+  font-size: 1.35rem;
+}
+
+.writers li p {
+  margin-top: 0.4rem;
+  color: var(--slate);
+}
+
+.writers > p {
+  margin-top: 3rem;
 }
 
 .house.house-page h1 {
@@ -389,6 +424,47 @@ span.library-cover {
 .library li p {
   margin-top: 0.25rem;
   color: var(--slate);
+}
+
+/* One book: cover and description side by side, at feature size. */
+.library ul.single {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 60rem;
+}
+
+.library .single a {
+  display: grid;
+  grid-template-columns: minmax(12rem, 22rem) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.library .single h2 {
+  margin-top: 0;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.library .single .library-intro {
+  margin-top: 1.25rem;
+  max-width: 34rem;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.library .single .library-status {
+  margin-top: 1rem;
+  font: 650 0.95rem/1.4 var(--display);
+  color: var(--ink);
+}
+
+.library .single .button {
+  margin-top: 1.75rem;
+}
+
+@media (max-width: 640px) {
+  .library .single a {
+    grid-template-columns: minmax(0, 16rem);
+  }
 }
 
 .site-footer {
@@ -552,6 +628,47 @@ body:has(.book-hero.light-text) .site-header {
 
 .specs dt {
   color: var(--slate);
+}
+
+/* Where to buy: a row per store */
+.chapter ul.stores {
+  display: grid;
+  gap: 0;
+  max-width: 36rem;
+}
+
+.stores li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.stores h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.stores div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.stores .button {
+  padding: 0.7rem 1.25rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .chapter .stores,

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 
 import { textOn } from '@/lib/colour'
-import { authorNames, getBooks, mediaOf } from '@/lib/data'
+import { authorNames, formatDate, getBooks, mediaOf } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +22,8 @@ export default async function BooksPage() {
       {books.length === 0 ? (
         <p>The first book is on its way.</p>
       ) : (
-        <ul>
+        // With a single book, the card is shown large so the page does not look empty.
+        <ul className={books.length === 1 ? 'single' : undefined}>
           {books.map((book) => {
             const cover = mediaOf(book.cover)?.url
             const colour = book.coverColour || '#24405C'
@@ -38,8 +39,25 @@ export default async function BooksPage() {
                       {book.title}
                     </span>
                   )}
-                  <h2>{book.title}</h2>
-                  <p>{authorNames(book)}</p>
+                  <div className="library-entry">
+                    <h2>{book.title}</h2>
+                    <p>{authorNames(book)}</p>
+                    {books.length === 1 && (
+                      <>
+                        <p className="library-intro">{book.introduction}</p>
+                        <p className="library-status">
+                          {book.status === 'available'
+                            ? 'Available now'
+                            : book.launchDate
+                              ? `Coming ${formatDate(book.launchDate)}`
+                              : 'Coming soon'}
+                        </p>
+                        <span className="button" aria-hidden>
+                          See the book
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </Link>
               </li>
             )

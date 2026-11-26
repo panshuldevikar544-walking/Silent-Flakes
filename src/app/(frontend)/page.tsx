@@ -65,7 +65,11 @@ export default async function HomePage() {
 
       <section className="house" id="house">
         <h2>The house</h2>
-        <p>{settings.philosophy || settings.introduction}</p>
+        {/* The introduction is already in the hero, so it is not repeated here. */}
+        {settings.philosophy && <p>{settings.philosophy}</p>}
+        <p>
+          <Link href="/house">More about the house</Link>
+        </p>
         {settings.contactEmail && (
           <p>
             Write to us: <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
