@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import type { BookVisual } from '@/lib/data'
 
@@ -67,7 +67,10 @@ export function BookStage({ book, flakes = false }: { book: BookVisual; flakes?:
   const reducedMotion = useSyncExternalStore(watchMotion, prefersReducedMotion, onServer)
   const [ready, setReady] = useState(false)
   const [visible, setVisible] = useState(true)
-  const [view, setView] = useState<View>('front')
+  const [view, setView] = useState<View | null>('front')
+  // Once the book turns or is dragged, no side is "selected", so any button works again.
+  const clearView = useCallback(() => setView(null), [])
+  const showReady = useCallback(() => setReady(true), [])
 
   // Stop drawing when the book is scrolled out of sight.
   useEffect(() => {
@@ -91,10 +94,11 @@ export function BookStage({ book, flakes = false }: { book: BookVisual; flakes?:
             <BookScene
               book={book}
               view={view}
+              onMove={clearView}
               flakes={flakes}
               active={visible}
               reducedMotion={reducedMotion}
-              onReady={() => setReady(true)}
+              onReady={showReady}
             />
           </Boundary>
         )}

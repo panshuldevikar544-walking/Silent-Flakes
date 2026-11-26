@@ -7,6 +7,8 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Lets phones and other computers on your home network use `npm run dev`. No effect once deployed.
+  allowedDevOrigins: ['192.168.*.*'],
   images: {
     localPatterns: [
       {

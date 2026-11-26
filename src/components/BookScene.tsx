@@ -14,10 +14,19 @@ const MODEL = '/models/book_parts.glb'
 const W = 1.4
 const H = 2.1
 const ANGLES: Record<View, number> = { front: -0.42, spine: Math.PI / 2 - 0.12, back: Math.PI - 0.42 }
+// The idle motion: one slow turn about every 25 seconds, and a gentle rise and fall.
+const SPIN = 0.25 // radians a second
+const FLOAT = 0.08 // how far it rises and falls
+// Seconds the book holds still before it starts turning again.
+const AFTER_ENTRANCE = 3
+const AFTER_DRAG = 2
+const AFTER_VIEW = 5
 
 type Props = {
   book: BookVisual
-  view: View
+  /** The chosen side, or null once the book has moved away from it. */
+  view: View | null
+  onMove: () => void
   flakes: boolean
   active: boolean
   reducedMotion: boolean
@@ -41,7 +50,7 @@ function CoverImage({ url, ...mesh }: { url: string } & React.ComponentProps<'me
   )
 }
 
-function Book({ book, view, reducedMotion, onReady }: Omit<Props, 'flakes' | 'active'>) {
+function Book({ book, view, onMove, reducedMotion, onReady }: Omit<Props, 'flakes' | 'active'>) {
   const { nodes } = useGLTF(MODEL, false) as unknown as { nodes: Record<string, THREE.Mesh> }
   const [clothMap, pageMap] = useLoader(THREE.TextureLoader, [
     '/textures/cloth_normal.png',
@@ -51,7 +60,9 @@ function Book({ book, view, reducedMotion, onReady }: Omit<Props, 'flakes' | 'ac
   const gl = useThree((s) => s.gl)
   const turn = useRef<THREE.Group>(null)
   const tilt = useRef<THREE.Group>(null)
-  const drag = useRef({ active: false, x: 0, offset: 0 })
+  const drag = useRef({ active: false, x: 0 })
+  const hold = useRef(AFTER_ENTRANCE)
+  const speed = useRef(0)
 
   const hard = book.binding === 'hardcover'
   const board = hard ? 0.045 : 0.012
@@ -114,16 +125,23 @@ function Book({ book, view, reducedMotion, onReady }: Omit<Props, 'flakes' | 'ac
       first.current = false
       return
     }
-    drag.current.offset = 0
+    if (!view) return
+    hold.current = AFTER_VIEW
+    speed.current = 0
+    // Take the short way round, however many turns the book has already made.
+    const from = turn.current!.rotation.y
+    const full = Math.PI * 2
+    const step = THREE.MathUtils.euclideanModulo(ANGLES[view] - from + Math.PI, full) - Math.PI
+    gsap.killTweensOf(turn.current!.rotation)
     const tween = gsap.to(turn.current!.rotation, {
-      y: ANGLES[view],
+      y: from + step,
       duration: reducedMotion ? 0 : 1.1,
       ease: 'power2.inOut',
       onUpdate: () => invalidate(),
     })
-    return () => {
-      tween.kill()
-    }
+    // The tween is not killed on cleanup: view turns null while the book carries on.
+    // A new view or a drag stops it with killTweensOf.
+    void tween
   }, [view, reducedMotion, invalidate])
 
   useEffect(() => {
@@ -135,7 +153,9 @@ function Book({ book, view, reducedMotion, onReady }: Omit<Props, 'flakes' | 'ac
     const el = gl.domElement
     const down = (e: PointerEvent) => {
       gsap.killTweensOf(turn.current!.rotation)
-      drag.current = { ...drag.current, active: true, x: e.clientX }
+      drag.current = { active: true, x: e.clientX }
+      speed.current = 0
+      onMove()
       el.setPointerCapture(e.pointerId)
     }
     const move = (e: PointerEvent) => {
@@ -145,6 +165,7 @@ function Book({ book, view, reducedMotion, onReady }: Omit<Props, 'flakes' | 'ac
       invalidate()
     }
     const up = () => {
+      if (drag.current.active) hold.current = AFTER_DRAG
       drag.current.active = false
     }
     el.addEventListener('pointerdown', down)
@@ -157,14 +178,24 @@ function Book({ book, view, reducedMotion, onReady }: Omit<Props, 'flakes' | 'ac
       el.removeEventListener('pointerup', up)
       el.removeEventListener('pointercancel', up)
     }
-  }, [gl, invalidate])
+  }, [gl, invalidate, onMove])
 
   useFrame(({ pointer, clock }, delta) => {
-    if (reducedMotion || !tilt.current) return
+    if (reducedMotion || !tilt.current || !turn.current) return
+    // A long gap (scrolled away, another tab) must not make the book jump.
+    const step = Math.min(delta, 0.05)
+    if (!drag.current.active) {
+      if (hold.current > 0) hold.current -= step
+      else {
+        if (speed.current === 0) onMove()
+        speed.current += (SPIN - speed.current) * Math.min(1, step * 1.5)
+        turn.current.rotation.y += speed.current * step
+      }
+    }
     const ease = 1 - Math.pow(0.002, delta)
     tilt.current.rotation.x += (-pointer.y * 0.08 - tilt.current.rotation.x) * ease
     tilt.current.rotation.y += (pointer.x * 0.14 - tilt.current.rotation.y) * ease
-    tilt.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.025
+    tilt.current.position.y = Math.sin(clock.elapsedTime * 1.1) * FLOAT
   })
 
   const kind = hard ? 'Hard' : 'Soft'
@@ -293,7 +324,7 @@ function Framing() {
   return null
 }
 
-export default function BookScene({ book, view, flakes, active, reducedMotion, onReady }: Props) {
+export default function BookScene({ book, view, onMove, flakes, active, reducedMotion, onReady }: Props) {
   const [small] = useState(() => window.innerWidth < 700)
   const [fontReady, setFontReady] = useState(false)
 
@@ -332,7 +363,13 @@ export default function BookScene({ book, view, flakes, active, reducedMotion, o
       />
       <directionalLight position={[4, 1, -2]} intensity={0.9} color="#cfe0ee" />
       <Suspense fallback={null}>
-        <Book book={book} view={view} reducedMotion={reducedMotion} onReady={onReady} />
+        <Book
+          book={book}
+          view={view}
+          onMove={onMove}
+          reducedMotion={reducedMotion}
+          onReady={onReady}
+        />
         <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} frames={reducedMotion ? 1 : Infinity} />
       </Suspense>
       {flakes && <Flakes count={small ? 45 : 110} still={reducedMotion} />}
