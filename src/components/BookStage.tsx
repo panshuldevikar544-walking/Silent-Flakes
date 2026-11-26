@@ -51,20 +51,12 @@ const supportsWebGL = () => {
   return webgl
 }
 
-const motionQuery = '(prefers-reduced-motion: reduce)'
-const prefersReducedMotion = () => window.matchMedia(motionQuery).matches
-const watchMotion = (changed: () => void) => {
-  const query = window.matchMedia(motionQuery)
-  query.addEventListener('change', changed)
-  return () => query.removeEventListener('change', changed)
-}
 const never = () => () => {}
 const onServer = () => false
 
 export function BookStage({ book, flakes = false }: { book: BookVisual; flakes?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const can3d = useSyncExternalStore(never, supportsWebGL, onServer)
-  const reducedMotion = useSyncExternalStore(watchMotion, prefersReducedMotion, onServer)
   const [ready, setReady] = useState(false)
   const [visible, setVisible] = useState(true)
   const [view, setView] = useState<View | null>('front')
@@ -97,7 +89,6 @@ export function BookStage({ book, flakes = false }: { book: BookVisual; flakes?:
               onMove={clearView}
               flakes={flakes}
               active={visible}
-              reducedMotion={reducedMotion}
               onReady={showReady}
             />
           </Boundary>

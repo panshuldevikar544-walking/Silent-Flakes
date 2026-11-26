@@ -29,7 +29,6 @@ type Props = {
   onMove: () => void
   flakes: boolean
   active: boolean
-  reducedMotion: boolean
   onReady: () => void
 }
 
@@ -50,7 +49,7 @@ function CoverImage({ url, ...mesh }: { url: string } & React.ComponentProps<'me
   )
 }
 
-function Book({ book, view, onMove, reducedMotion, onReady }: Omit<Props, 'flakes' | 'active'>) {
+function Book({ book, view, onMove, onReady }: Omit<Props, 'flakes' | 'active'>) {
   const { nodes } = useGLTF(MODEL, false) as unknown as { nodes: Record<string, THREE.Mesh> }
   const [clothMap, pageMap] = useLoader(THREE.TextureLoader, [
     '/textures/cloth_normal.png',
@@ -104,12 +103,6 @@ function Book({ book, view, onMove, reducedMotion, onReady }: Omit<Props, 'flake
   // One entrance: the book turns from its spine to its cover.
   useLayoutEffect(() => {
     const group = turn.current!
-    if (reducedMotion) {
-      group.rotation.y = ANGLES.front
-      group.position.y = 0
-      invalidate()
-      return
-    }
     const timeline = gsap
       .timeline()
       .fromTo(group.rotation, { y: Math.PI / 2 }, { y: ANGLES.front, duration: 2.2, ease: 'power3.out' })
@@ -117,7 +110,7 @@ function Book({ book, view, onMove, reducedMotion, onReady }: Omit<Props, 'flake
     return () => {
       timeline.kill()
     }
-  }, [reducedMotion, invalidate])
+  }, [])
 
   const first = useRef(true)
   useEffect(() => {
@@ -135,14 +128,14 @@ function Book({ book, view, onMove, reducedMotion, onReady }: Omit<Props, 'flake
     gsap.killTweensOf(turn.current!.rotation)
     const tween = gsap.to(turn.current!.rotation, {
       y: from + step,
-      duration: reducedMotion ? 0 : 1.1,
+      duration: 1.1,
       ease: 'power2.inOut',
       onUpdate: () => invalidate(),
     })
     // The tween is not killed on cleanup: view turns null while the book carries on.
     // A new view or a drag stops it with killTweensOf.
     void tween
-  }, [view, reducedMotion, invalidate])
+  }, [view, invalidate])
 
   useEffect(() => {
     onReady()
@@ -181,7 +174,7 @@ function Book({ book, view, onMove, reducedMotion, onReady }: Omit<Props, 'flake
   }, [gl, invalidate, onMove])
 
   useFrame(({ pointer, clock }, delta) => {
-    if (reducedMotion || !tilt.current || !turn.current) return
+    if (!tilt.current || !turn.current) return
     // A long gap (scrolled away, another tab) must not make the book jump.
     const step = Math.min(delta, 0.05)
     if (!drag.current.active) {
@@ -262,7 +255,7 @@ const seededRandom = (start: number) => {
 }
 
 /** Torn paper flakes falling slowly behind and around the book. */
-function Flakes({ count, still }: { count: number; still: boolean }) {
+function Flakes({ count }: { count: number }) {
   const mesh = useRef<THREE.InstancedMesh>(null)
   const flakes = useMemo(() => {
     // Fixed seed so the fall looks the same on every visit.
@@ -293,9 +286,7 @@ function Flakes({ count, still }: { count: number; still: boolean }) {
   }
 
   useLayoutEffect(() => place(0))
-  useFrame(({ clock }) => {
-    if (!still) place(clock.elapsedTime)
-  })
+  useFrame(({ clock }) => place(clock.elapsedTime))
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, count]} frustumCulled={false}>
@@ -324,7 +315,7 @@ function Framing() {
   return null
 }
 
-export default function BookScene({ book, view, onMove, flakes, active, reducedMotion, onReady }: Props) {
+export default function BookScene({ book, view, onMove, flakes, active, onReady }: Props) {
   const [small] = useState(() => window.innerWidth < 700)
   const [fontReady, setFontReady] = useState(false)
 
@@ -346,7 +337,8 @@ export default function BookScene({ book, view, onMove, flakes, active, reducedM
     <Canvas
       shadows={small ? false : 'percentage'}
       dpr={[1, small ? 1.5 : 2]}
-      frameloop={!active ? 'never' : reducedMotion ? 'demand' : 'always'}
+      // The motion runs for every visitor, including those whose device asks to reduce it.
+      frameloop={active ? 'always' : 'never'}
       camera={{ fov: 30 }}
       gl={{ antialias: true, alpha: true }}
       style={{ touchAction: 'pan-y', cursor: 'grab' }}
@@ -367,12 +359,11 @@ export default function BookScene({ book, view, onMove, flakes, active, reducedM
           book={book}
           view={view}
           onMove={onMove}
-          reducedMotion={reducedMotion}
           onReady={onReady}
         />
-        <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} frames={reducedMotion ? 1 : Infinity} />
+        <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} />
       </Suspense>
-      {flakes && <Flakes count={small ? 45 : 110} still={reducedMotion} />}
+      {flakes && <Flakes count={small ? 45 : 110} />}
     </Canvas>
   )
 }
