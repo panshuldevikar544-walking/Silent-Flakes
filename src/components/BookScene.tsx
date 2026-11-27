@@ -5,16 +5,29 @@ import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import gsap from 'gsap'
 import React, { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
 import type { BookVisual } from '@/lib/data'
-import { backCover, spineArt, titleCover } from './bookTextures'
+import {
+  COVER_FONTS,
+  backCover,
+  grainNormal,
+  imageCover,
+  spineArt,
+  titleCover,
+  tonesOf,
+} from './bookTextures'
 import { FallingLeaves, type Motif } from './FallingLeaves'
 import type { View } from './BookStage'
 
 const MODEL = '/models/book_parts.glb'
 const W = 1.4
 const H = 2.1
-const ANGLES: Record<View, number> = { front: -0.42, spine: Math.PI / 2 - 0.12, back: Math.PI - 0.42 }
+const ANGLES: Record<View, number> = {
+  front: -0.42,
+  spine: Math.PI / 2 - 0.12,
+  back: Math.PI - 0.42,
+}
 // The idle motion: one slow turn about every 25 seconds, and a gentle rise and fall.
 const SPIN = 0.25 // radians a second
 const FLOAT = 0.08 // how far it rises and falls
@@ -22,6 +35,7 @@ const FLOAT = 0.08 // how far it rises and falls
 const AFTER_ENTRANCE = 3
 const AFTER_DRAG = 2
 const AFTER_VIEW = 5
+const CLOTH = new THREE.Vector2(0.6, 0.6)
 
 type Props = {
   book: BookVisual
@@ -34,24 +48,47 @@ type Props = {
   onReady: () => void
 }
 
-function CoverImage({ url, ...mesh }: { url: string } & React.ComponentProps<'mesh'>) {
-  const loaded = useLoader(THREE.TextureLoader, url)
-  const texture = useMemo(() => {
-    const map = loaded.clone()
-    map.colorSpace = THREE.SRGBColorSpace
-    map.anisotropy = 8
-    map.needsUpdate = true
-    return map
-  }, [loaded])
+type BookProps = Omit<Props, 'motif' | 'active'>
+
+/** Loads the uploaded front cover first, so the back and spine can take its colours. */
+function Book(props: BookProps) {
+  return props.book.coverUrl ? (
+    <WithFront {...props} url={props.book.coverUrl} />
+  ) : (
+    <Bound {...props} front={null} />
+  )
+}
+function WithFront({ url, ...props }: BookProps & { url: string }) {
+  const front = useLoader(THREE.ImageLoader, url)
+  return <Bound {...props} front={front} />
+}
+function UploadedBack({ url, face }: { url: string; face: number }) {
+  const image = useLoader(THREE.ImageLoader, url)
+  const map = useMemo(() => imageCover(image, 'right'), [image])
+  useEffect(() => () => map.dispose(), [map])
   return (
-    <mesh {...mesh}>
+    <mesh position={[0, 0, -face]} rotation={[0, Math.PI, 0]}>
       <planeGeometry args={[W - 0.012, H - 0.012]} />
-      <meshStandardMaterial map={texture} roughness={0.55} />
+      <meshStandardMaterial
+        map={map}
+        roughness={0.78}
+        normalMap={grainNormal()}
+        normalScale={PAPER}
+      />
     </mesh>
   )
 }
 
-function Book({ book, view, onMove, onReady }: Omit<Props, 'motif' | 'active'>) {
+// How strongly the paper grain catches the light.
+const PAPER = new THREE.Vector2(0.18, 0.18)
+
+function Bound({
+  book,
+  view,
+  onMove,
+  onReady,
+  front,
+}: BookProps & { front: HTMLImageElement | null }) {
   const { nodes } = useGLTF(MODEL, false) as unknown as { nodes: Record<string, THREE.Mesh> }
   const [clothMap, pageMap] = useLoader(THREE.TextureLoader, [
     '/textures/cloth_normal.png',
@@ -70,17 +107,23 @@ function Book({ book, view, onMove, onReady }: Omit<Props, 'motif' | 'active'>) 
   const thickness = THREE.MathUtils.clamp(book.pageCount * 0.0011, 0.1, 0.5)
   const outer = thickness + board * 2
 
+  // With a cover image and no cover colour chosen, the spine and back take the image's colours.
+  const tones = useMemo(
+    () => (front && !book.colourSet ? tonesOf(front) : null),
+    [front, book.colourSet],
+  )
+  const colour = tones?.paper ?? book.colour
   const art = useMemo(
     () => ({
-      front: book.coverUrl ? null : titleCover(book),
-      back: book.backUrl ? null : backCover(book),
-      spine: spineArt(book, outer),
+      front: front ? imageCover(front) : titleCover(book),
+      back: book.backUrl ? null : backCover(book, front, front ? (tones ?? tonesOf(front)) : null),
+      spine: spineArt(book, outer, tones),
     }),
-    [book, outer],
+    [book, outer, front, tones],
   )
   useEffect(
     () => () => {
-      art.front?.dispose()
+      art.front.dispose()
       art.back?.dispose()
       art.spine.dispose()
     },
@@ -107,7 +150,11 @@ function Book({ book, view, onMove, onReady }: Omit<Props, 'motif' | 'active'>) 
     const group = turn.current!
     const timeline = gsap
       .timeline()
-      .fromTo(group.rotation, { y: Math.PI / 2 }, { y: ANGLES.front, duration: 2.2, ease: 'power3.out' })
+      .fromTo(
+        group.rotation,
+        { y: Math.PI / 2 },
+        { y: ANGLES.front, duration: 2.2, ease: 'power3.out' },
+      )
       .fromTo(group.position, { y: -0.35 }, { y: 0, duration: 1.8, ease: 'power3.out' }, 0)
     return () => {
       timeline.kill()
@@ -197,10 +244,10 @@ function Book({ book, view, onMove, onReady }: Omit<Props, 'motif' | 'active'>) 
   const pageWidthOffset = hard ? -0.022 : -0.001
   const coverMaterial = (
     <meshStandardMaterial
-      color={book.colour}
-      roughness={hard ? 0.85 : 0.5}
-      normalMap={hard ? cloth : null}
-      normalScale={new THREE.Vector2(0.6, 0.6)}
+      color={colour}
+      roughness={hard ? 0.88 : 0.74}
+      normalMap={hard ? cloth : grainNormal()}
+      normalScale={hard ? CLOTH : PAPER}
     />
   )
   const face = outer / 2 + 0.0015
@@ -225,30 +272,73 @@ function Book({ book, view, onMove, onReady }: Omit<Props, 'motif' | 'active'>) 
           scale={[1, 1, thickness]}
           castShadow
         >
-          <meshStandardMaterial map={pages} roughness={0.95} />
+          <meshStandardMaterial
+            map={pages}
+            roughness={0.95}
+            normalMap={grainNormal()}
+            normalScale={PAPER}
+          />
         </mesh>
-        <mesh geometry={nodes[`${kind}Spine`].geometry} position={[-W / 2, 0, 0]} scale={[1, 1, outer]} castShadow>
-          <meshStandardMaterial map={art.spine} roughness={hard ? 0.85 : 0.5} side={THREE.DoubleSide} />
+        <mesh
+          geometry={nodes[`${kind}Spine`].geometry}
+          position={[-W / 2, 0, 0]}
+          scale={[1, 1, outer]}
+          castShadow
+        >
+          <meshStandardMaterial
+            map={art.spine}
+            roughness={hard ? 0.88 : 0.74}
+            normalMap={hard ? cloth : grainNormal()}
+            normalScale={hard ? CLOTH : PAPER}
+            side={THREE.DoubleSide}
+          />
         </mesh>
-        {art.front ? (
-          <mesh position={[0, 0, face]}>
-            <planeGeometry args={[W - 0.012, H - 0.012]} />
-            <meshStandardMaterial map={art.front} roughness={0.6} />
-          </mesh>
-        ) : (
-          <CoverImage url={book.coverUrl!} position={[0, 0, face]} />
-        )}
+        <mesh position={[0, 0, face]}>
+          <planeGeometry args={[W - 0.012, H - 0.012]} />
+          <meshStandardMaterial
+            map={art.front}
+            roughness={0.78}
+            normalMap={grainNormal()}
+            normalScale={PAPER}
+          />
+        </mesh>
         {art.back ? (
           <mesh position={[0, 0, -face]} rotation={[0, Math.PI, 0]}>
             <planeGeometry args={[W - 0.012, H - 0.012]} />
-            <meshStandardMaterial map={art.back} roughness={0.6} />
+            <meshStandardMaterial
+              map={art.back}
+              roughness={0.78}
+              normalMap={grainNormal()}
+              normalScale={PAPER}
+            />
           </mesh>
         ) : (
-          <CoverImage url={book.backUrl!} position={[0, 0, -face]} rotation={[0, Math.PI, 0]} />
+          <UploadedBack url={book.backUrl!} face={face} />
         )}
       </group>
     </group>
   )
+}
+
+/** Soft light from a plain room, so matte paper shades the way it does in the hand. */
+function Room() {
+  const gl = useThree((s) => s.gl)
+  const get = useThree((s) => s.get)
+  useEffect(() => {
+    const { scene } = get()
+    const pmrem = new THREE.PMREMGenerator(gl)
+    const room = new RoomEnvironment()
+    const env = pmrem.fromScene(room, 0.04).texture
+    scene.environment = env
+    scene.environmentIntensity = 0.45
+    return () => {
+      scene.environment = null
+      env.dispose()
+      room.dispose()
+      pmrem.dispose()
+    }
+  }, [gl, get])
+  return null
 }
 
 /** Pulls the camera back on narrow screens so the book always fits. */
@@ -270,10 +360,9 @@ export default function BookScene({ book, view, onMove, motif, active, onReady }
   // Canvas textures need the web font before they are drawn.
   useEffect(() => {
     let live = true
-    Promise.all([
-      document.fonts.load("700 100px 'Schibsted Grotesk Variable'"),
-      document.fonts.load("400 40px 'Schibsted Grotesk Variable'"),
-    ]).finally(() => live && setFontReady(true))
+    Promise.all(COVER_FONTS.map((font) => document.fonts.load(font))).finally(
+      () => live && setFontReady(true),
+    )
     return () => {
       live = false
     }
@@ -292,7 +381,8 @@ export default function BookScene({ book, view, onMove, motif, active, onReady }
       style={{ touchAction: 'pan-y', cursor: 'grab' }}
     >
       <Framing />
-      <hemisphereLight args={['#f4f8fb', '#6b7a86', 1.5]} />
+      <Room />
+      <hemisphereLight args={['#fff4e6', '#6d5d50', 1.1]} />
       <directionalLight
         position={[-2.5, 3, 4]}
         intensity={1.7}
@@ -301,17 +391,17 @@ export default function BookScene({ book, view, onMove, motif, active, onReady }
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
       />
-      <directionalLight position={[4, 1, -2]} intensity={0.9} color="#cfe0ee" />
+      <directionalLight position={[4, 1, -2]} intensity={0.8} color="#f3dcc2" />
       <Suspense fallback={null}>
-        <Book
-          book={book}
-          view={view}
-          onMove={onMove}
-          onReady={onReady}
-        />
+        <Book book={book} view={view} onMove={onMove} onReady={onReady} />
         <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} />
       </Suspense>
-      {motif && <FallingLeaves kind={motif} count={Math.round((small ? 34 : 56) * (motif === 'snow' ? 1.6 : 1))} />}
+      {motif && (
+        <FallingLeaves
+          kind={motif}
+          count={Math.round((small ? 34 : 56) * (motif === 'snow' ? 1.6 : 1))}
+        />
+      )}
     </Canvas>
   )
 }

@@ -58,10 +58,17 @@ export const bookVisual = (book: Book) => ({
   title: book.title,
   author: authorNames(book),
   colour: book.coverColour || '#24405C',
+  colourSet: Boolean(book.coverColour),
   binding: book.binding,
   pageCount: book.pageCount ?? 240,
   coverUrl: mediaOf(book.cover)?.url ?? null,
   backUrl: mediaOf(book.backCover)?.url ?? null,
+  // For the back cover drawn when none is uploaded.
+  line: book.introduction || null,
+  blurb: (book.about ?? '').split(/\n\s*\n/)[0].trim() || null,
+  isbn: book.isbn ?? null,
+  price: book.price?.match(/[₹$£€]\s?[\d,.]+/)?.[0] ?? null,
+  accent: book.accentColour || null,
 })
 
 /** What falls around a book's 3D cover, chosen in its Design tab. */
@@ -99,5 +106,7 @@ export type BookVisual = ReturnType<typeof bookVisual>
 
 export const formatDate = (value?: string | null) =>
   value
-    ? new Intl.DateTimeFormat('en-IN', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(value))
+    ? new Intl.DateTimeFormat('en-IN', { dateStyle: 'long', timeZone: 'UTC' }).format(
+        new Date(value),
+      )
     : null
