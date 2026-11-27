@@ -26,7 +26,7 @@ export function IntroMotion() {
       const random = gsap.utils.random
 
       // The hero waits hidden (see .motion in the styles) until this shows it.
-      gsap.set('.hero-copy, .hero-book', { visibility: 'visible' })
+      gsap.set('.home-search, .hero-copy, .hero-book', { visibility: 'visible' })
       // The book waits, unseen, until it is ready, then arrives once (below).
       gsap.set('.hero-book .stage', { autoAlpha: 0 })
 
@@ -50,6 +50,7 @@ export function IntroMotion() {
           },
           0.05,
         )
+        .from('.home-search', { autoAlpha: 0, y: -24, duration: 1.1 }, 0.3)
         .from('.hero-intro', { autoAlpha: 0, y: 24, filter: 'blur(12px)', duration: 1.1 }, 0.45)
         .from(
           '.hero-now',
@@ -80,8 +81,10 @@ export function IntroMotion() {
         const timeline = gsap
           .timeline({ delay: 0.15 + coverLead() })
           .to(stage, { autoAlpha: 1, duration: 0.9, ease: 'power2.out' }, 0)
-        if (drawing) timeline.from(drawing, { y: 90, scale: 0.82, duration: 1.9, ease: 'expo.out' }, 0)
-        if (views) timeline.from(views, { autoAlpha: 0, y: 20, duration: 0.8, ease: 'expo.out' }, 0.9)
+        if (drawing)
+          timeline.from(drawing, { y: 90, scale: 0.82, duration: 1.9, ease: 'expo.out' }, 0)
+        if (views)
+          timeline.from(views, { autoAlpha: 0, y: 20, duration: 0.8, ease: 'expo.out' }, 0.9)
       })
     }
     if (stage?.dataset.ready) arrive()

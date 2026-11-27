@@ -413,6 +413,194 @@ img {
   margin-top: 1.5rem;
 }
 
+/* Home: search for a book or a writer, across the top of the opening. Cream and
+   cocoa brown against the night sky. */
+
+.home-search {
+  --search-cream: #f7efe3;
+  --search-brown: #a8795a;
+  --search-brown-hover: #96694b;
+  --search-ink: #4a3426;
+  --search-soft: #8f735e;
+  --search-hover: #ecdfcc;
+  position: relative;
+  z-index: 5;
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: min(100%, 52rem);
+  align-self: start;
+}
+
+.home-search form {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.home-search input {
+  width: 100%;
+  height: 3.7rem;
+  padding: 0 8.5rem 0 3.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--search-cream);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 0.4);
+  color: var(--search-ink);
+  font: 400 1.08rem var(--text);
+  transition: box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+
+.home-search input::placeholder {
+  color: var(--search-soft);
+}
+
+.home-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.home-search input:focus {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgb(168 121 90 / 0.55),
+    0 16px 36px rgb(0 0 0 / 0.4);
+}
+
+.home-search-icon {
+  position: absolute;
+  z-index: 1;
+  left: 1.3rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: var(--search-brown);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.home-search-go {
+  position: absolute;
+  right: 0;
+  height: 100%;
+  padding: 0 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--search-brown);
+  color: var(--search-cream);
+  font: 600 1.05rem var(--text);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.home-search-go:hover {
+  background: var(--search-brown-hover);
+}
+
+.home-search-go:focus-visible {
+  outline: 2px solid var(--search-cream);
+  outline-offset: 2px;
+}
+
+.home-search-panel {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 0;
+  right: 0;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: calc(var(--soft) * 1.25);
+  background: var(--search-cream);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
+  animation: search-open 0.35s var(--ease);
+}
+
+@keyframes search-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.home-search-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-search-panel a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius);
+  color: var(--search-ink);
+  text-decoration: none;
+}
+
+.home-search-panel [aria-selected='true'] a {
+  background: var(--search-hover);
+  box-shadow: inset 3px 0 0 var(--search-brown);
+}
+
+.home-search-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.9rem;
+  border-radius: 0.2rem 0.4rem 0.4rem 0.2rem;
+  background: var(--mark);
+  box-shadow: inset 3px 0 0 rgb(0 0 0 / 0.18), 0 3px 8px rgb(0 0 0 / 0.35);
+}
+
+.home-search-mark.writer {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.35);
+  color: #fff8ee;
+  font: 500 1.1rem var(--display);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+}
+
+.home-search-text {
+  display: grid;
+  min-width: 0;
+}
+
+.home-search-title {
+  font: 500 1.1rem / 1.25 var(--display);
+}
+
+.home-search-detail {
+  overflow: hidden;
+  color: var(--search-soft);
+  font-size: 0.92rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-search-empty {
+  padding: 0.9rem 1rem;
+  color: var(--search-soft);
+}
+
+.home-search-empty a {
+  color: var(--search-brown);
+}
+
+@media (max-width: 860px) {
+  .home-search input {
+    height: 3.3rem;
+    padding-right: 1.2rem;
+    font-size: 1rem;
+  }
+
+  .home-search-go {
+    display: none;
+  }
+}
+
 .hero-book {
   position: relative;
   isolation: isolate;
@@ -1267,6 +1455,322 @@ img {
   scroll-margin-top: calc(var(--header) + 1rem);
 }
 
+/* The opening curtain, on every load and reload (see Opening). All CSS, so it plays from the
+   first frame: a flake drops, a ring draws up round it and fills with drifting snow, the
+   mark appears, and the night splits into uneven strips that slide away. It never takes
+   clicks, and if the script never runs it still ends out of sight. */
+
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--twilight);
+}
+
+html:not(.is-opening) .opening {
+  display: none;
+}
+
+.opening-strips {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.opening-strips i {
+  /* A hair of overlap, so no seam shows between strips. */
+  margin-right: -1px;
+  background: var(--snow);
+  animation: opening-strip-up 0.5s cubic-bezier(0.7, 0, 0.2, 1) calc(1.25s + var(--i) * 0.028s) forwards;
+}
+
+.opening-strips i:nth-child(even) {
+  animation-name: opening-strip-down;
+}
+
+@keyframes opening-strip-up {
+  to {
+    transform: translateY(-101%);
+  }
+}
+
+@keyframes opening-strip-down {
+  to {
+    transform: translateY(101%);
+  }
+}
+
+.opening-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(45% 45% at 50% 50%, rgb(232 146 90 / 0.12), transparent 70%);
+  animation: opening-gone 0.3s ease-in 1.15s forwards;
+}
+
+@keyframes opening-gone {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Light snow falling behind the bowl: small and slow at the back, larger and quicker in
+   front. Each layer is a tile moved down by exactly one tile, so the fall loops cleanly. */
+.opening::before,
+.opening::after {
+  content: '';
+  position: absolute;
+  inset: -260px 0 0;
+  will-change: transform;
+}
+
+.opening::before {
+  background-image:
+    radial-gradient(circle 0.9px at 86px 246px, rgb(243 234 216 / 0.55) 50%, transparent),
+    radial-gradient(circle 1.2px at 22px 214px, rgb(243 234 216 / 0.46) 50%, transparent),
+    radial-gradient(circle 1.2px at 18px 236px, rgb(243 234 216 / 0.36) 50%, transparent),
+    radial-gradient(circle 0.9px at 115px 111px, rgb(243 234 216 / 0.38) 50%, transparent),
+    radial-gradient(circle 1.5px at 112px 19px, rgb(243 234 216 / 0.39) 50%, transparent),
+    radial-gradient(circle 1.3px at 61px 165px, rgb(243 234 216 / 0.63) 50%, transparent),
+    radial-gradient(circle 1.1px at 151px 153px, rgb(243 234 216 / 0.64) 50%, transparent),
+    radial-gradient(circle 1.5px at 15px 146px, rgb(243 234 216 / 0.44) 50%, transparent),
+    radial-gradient(circle 0.9px at 40px 142px, rgb(243 234 216 / 0.44) 50%, transparent),
+    radial-gradient(circle 0.9px at 212px 178px, rgb(243 234 216 / 0.52) 50%, transparent),
+    radial-gradient(circle 1.1px at 167px 52px, rgb(243 234 216 / 0.51) 50%, transparent),
+    radial-gradient(circle 0.8px at 20px 148px, rgb(243 234 216 / 0.41) 50%, transparent),
+    radial-gradient(circle 1.1px at 178px 140px, rgb(243 234 216 / 0.44) 50%, transparent),
+    radial-gradient(circle 1.2px at 153px 240px, rgb(243 234 216 / 0.44) 50%, transparent),
+    radial-gradient(circle 1.4px at 207px 50px, rgb(243 234 216 / 0.42) 50%, transparent),
+    radial-gradient(circle 1.2px at 151px 80px, rgb(243 234 216 / 0.61) 50%, transparent);
+  background-size: 260px 260px;
+  animation:
+    opening-fall-back 4.5s linear infinite,
+    opening-gone 0.3s ease-in 1.15s forwards;
+}
+
+.opening::after {
+  inset: -420px 0 0;
+  background-image:
+    radial-gradient(circle 2.7px at 377px 233px, rgb(243 234 216 / 0.89) 50%, transparent),
+    radial-gradient(circle 2.9px at 64px 266px, rgb(243 234 216 / 0.83) 50%, transparent),
+    radial-gradient(circle 2.9px at 81px 254px, rgb(243 234 216 / 0.89) 50%, transparent),
+    radial-gradient(circle 3.1px at 43px 395px, rgb(243 234 216 / 0.84) 50%, transparent),
+    radial-gradient(circle 3.3px at 164px 178px, rgb(243 234 216 / 0.78) 50%, transparent),
+    radial-gradient(circle 2.9px at 300px 412px, rgb(243 234 216 / 0.85) 50%, transparent),
+    radial-gradient(circle 3.3px at 142px 246px, rgb(243 234 216 / 0.62) 50%, transparent),
+    radial-gradient(circle 2.7px at 378px 363px, rgb(243 234 216 / 0.77) 50%, transparent),
+    radial-gradient(circle 2.7px at 352px 232px, rgb(243 234 216 / 0.72) 50%, transparent);
+  background-size: 420px 420px;
+  filter: blur(0.8px);
+  animation:
+    opening-fall-front 2.2s linear infinite,
+    opening-gone 0.3s ease-in 1.15s forwards;
+}
+
+@keyframes opening-fall-back {
+  to {
+    transform: translate3d(0, 260px, 0);
+  }
+}
+
+@keyframes opening-fall-front {
+  to {
+    transform: translate3d(0, 420px, 0);
+  }
+}
+
+.opening-inner {
+  --bowl: clamp(7.5rem, 13vw, 10rem);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  animation: opening-out 0.3s ease-in 1.1s forwards;
+}
+
+@keyframes opening-out {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* The flake that falls first, landing where the ring will start. */
+.opening-drop {
+  position: absolute;
+  top: calc(var(--bowl) * 0.97 - 4px);
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--twilight);
+  box-shadow: 0 0 12px rgb(243 234 216 / 0.6);
+  animation: opening-drop 0.42s cubic-bezier(0.5, 0, 0.9, 0.5) both;
+}
+
+@keyframes opening-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50vh);
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.2);
+  }
+}
+
+.opening-bowl {
+  position: relative;
+  width: var(--bowl);
+  height: var(--bowl);
+}
+
+/* The ring draws up both sides at once from where the flake landed, like a bowl. Each side
+   is a half circle of border, turned up into view from behind a half-width window. */
+.opening-half {
+  position: absolute;
+  inset: 3% 50% 3% 3%;
+  overflow: hidden;
+}
+
+.opening-half.right {
+  inset: 3% 3% 3% 50%;
+}
+
+.opening-half i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  box-sizing: border-box;
+  border: max(1.5px, calc(var(--bowl) * 0.015)) solid transparent;
+  border-radius: 50%;
+  border-left-color: var(--twilight);
+  border-bottom-color: var(--twilight);
+  transform: rotate(-135deg);
+  animation: opening-arc-left 0.5s cubic-bezier(0.45, 0, 0.2, 1) 0.36s forwards;
+  will-change: transform;
+}
+
+.opening-half.right i {
+  left: -100%;
+  border-left-color: transparent;
+  border-right-color: var(--twilight);
+  transform: rotate(135deg);
+  animation-name: opening-arc-right;
+}
+
+@keyframes opening-arc-left {
+  to {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes opening-arc-right {
+  to {
+    transform: rotate(-45deg);
+  }
+}
+
+/* The snow drift rises inside the ring until it is full. */
+.opening-pool {
+  position: absolute;
+  inset: 7%;
+  overflow: hidden;
+  border-radius: 50%;
+  /* Keeps the round clip on the graphics card with the moving snow inside it. */
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+.opening-fill {
+  position: absolute;
+  inset: 0;
+  transform: translateY(102%);
+  animation: opening-fill 0.7s cubic-bezier(0.3, 0, 0.2, 1) 0.45s forwards;
+  will-change: transform;
+}
+
+@keyframes opening-fill {
+  to {
+    transform: translateY(-8%);
+  }
+}
+
+.opening-wave {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 300%;
+  height: 130%;
+  fill: var(--twilight);
+  animation: opening-wave 1.1s linear infinite;
+  will-change: transform;
+}
+
+.opening-wave.behind {
+  opacity: 0.45;
+  animation: opening-wave-behind 1.6s linear infinite;
+}
+
+@keyframes opening-wave {
+  to {
+    transform: translateX(-16.667%);
+  }
+}
+
+@keyframes opening-wave-behind {
+  from {
+    transform: translate(-8.333%, -2.3%);
+  }
+  to {
+    transform: translate(8.333%, -2.3%);
+  }
+}
+
+/* The house mark, dark on the snow, appears once the bowl is nearly full. */
+.opening-mark {
+  position: absolute;
+  top: calc(var(--bowl) * 0.3);
+  left: calc(50% - var(--bowl) * 0.2);
+  width: calc(var(--bowl) * 0.4);
+  height: calc(var(--bowl) * 0.4);
+  color: var(--snow);
+  animation: opening-mark 0.5s var(--ease) 0.95s both;
+}
+
+@keyframes opening-mark {
+  from {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.2);
+  }
+}
+
+.opening-name {
+  font: 400 clamp(1.3rem, 2vw, 1.6rem) / 1 var(--display);
+  letter-spacing: 0.02em;
+  animation: opening-name 0.6s var(--ease) 0.55s both;
+}
+
+@keyframes opening-name {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
 /* The change between pages: a snowstorm drawn over everything (see PageTransition) */
 
 #page-storm {
@@ -1321,6 +1825,7 @@ img {
 
 /* The home hero waits hidden until IntroMotion brings it in; if the script never runs, it
    appears anyway. */
+.motion .home-search,
 .motion .hero-copy,
 .motion .hero-book {
   visibility: hidden;

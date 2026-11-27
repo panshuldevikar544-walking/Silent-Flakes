@@ -204,7 +204,7 @@ export default async function BookPage(props: Props) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img className="portrait" src={portrait.url} alt={portrait.alt} />
                   )}
-                  <h3>{author.name}</h3>
+                  <h3 id={`writer-${author.slug}`}>{author.name}</h3>
                   {author.biography && <p className="prose">{author.biography}</p>}
                   {[
                     ['Academic background', author.academicBackground],

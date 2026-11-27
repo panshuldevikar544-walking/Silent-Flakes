@@ -7,11 +7,13 @@ import { BookLink } from '@/components/BookLink'
 import { BookStage } from '@/components/BookStage'
 import { Flake } from '@/components/Flake'
 import { HeroMotion } from '@/components/HeroMotion'
+import { HomeSearch, type SearchEntry } from '@/components/HomeSearch'
 import { IntroMotion } from '@/components/IntroMotion'
 import { SnowField } from '@/components/SnowField'
 import { Upcoming } from '@/components/Upcoming'
 import {
   authorNames,
+  authorsOf,
   bookVisual,
   genresOf,
   getBooks,
@@ -53,6 +55,38 @@ export default async function HomePage() {
   const featured = books.find((b) => b.featured) ?? out[0] ?? books[0]
   const genres = [...new Set(books.flatMap((b) => genresOf(b).map((g) => g.name)))].sort()
 
+  // What the search can find: every book, and every writer with the books they wrote.
+  const search: SearchEntry[] = books.map((book) => ({
+    kind: 'book',
+    title: book.title,
+    detail: authorNames(book),
+    href: `/books/${book.slug}`,
+    colour: themeOf(book).cover,
+    words: [book.title, book.subtitle, authorNames(book), ...genresOf(book).map((g) => g.name)]
+      .filter(Boolean)
+      .join(' '),
+  }))
+  const writers = new Map<string, { name: string; slug: string; books: typeof books }>()
+  for (const book of books)
+    for (const author of authorsOf(book)) {
+      const entry = writers.get(String(author.id)) ?? {
+        name: author.name,
+        slug: author.slug ?? '',
+        books: [],
+      }
+      entry.books.push(book)
+      writers.set(String(author.id), entry)
+    }
+  for (const writer of writers.values())
+    search.push({
+      kind: 'writer',
+      title: writer.name,
+      detail: writer.books.map((b) => b.title).join(', '),
+      href: `/books/${writer.books[0].slug}#writer-${writer.slug}`,
+      colour: themeOf(writer.books[0]).cover,
+      words: writer.name,
+    })
+
   return (
     <>
       <IntroMotion />
@@ -77,6 +111,8 @@ export default async function HomePage() {
             <Flake />
           </div>
         </div>
+
+        <HomeSearch entries={search} />
 
         <div className="hero-copy">
           <p className="eyebrow">An independent publishing house</p>

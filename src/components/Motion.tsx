@@ -107,7 +107,13 @@ export function Motion() {
           {
             y: () => -window.innerHeight * speed * 0.5,
             ease: 'none',
-            scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true },
+            scrollTrigger: {
+              trigger: el,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
           },
         )
       })
@@ -152,9 +158,24 @@ export function Motion() {
     const refresh = () => ScrollTrigger.refresh()
     window.addEventListener('load', refresh)
     const late = window.setTimeout(refresh, 800)
+    // Arriving at a place within the page (a search result for a writer): go there once it settles.
+    const target = location.hash
+      ? document.getElementById(decodeURIComponent(location.hash.slice(1)))
+      : null
+    // Pictures above it can still be loading, so look again after arriving and correct.
+    let jump = 0
+    const settle = (tries: number) => {
+      if (!target || tries === 0) return
+      if (Math.abs(target.getBoundingClientRect().top - 110) < 8) return
+      // At once rather than gliding: the page is still arriving under the transition.
+      lenis?.scrollTo(target, { offset: -110, immediate: true, force: true })
+      jump = window.setTimeout(() => settle(tries - 1), 500)
+    }
+    if (target) jump = window.setTimeout(() => settle(4), 1000)
     return () => {
       window.removeEventListener('load', refresh)
       window.clearTimeout(late)
+      window.clearTimeout(jump)
       ctx.revert()
     }
   }, [path])

@@ -9,6 +9,7 @@ import React from 'react'
 
 import { Flake } from '@/components/Flake'
 import { Motion } from '@/components/Motion'
+import { Opening } from '@/components/Opening'
 import { PageTransition } from '@/components/PageTransition'
 import { SiteNav } from '@/components/SiteNav'
 
@@ -27,8 +28,9 @@ export const metadata: Metadata = {
   openGraph: { siteName: 'Silent Flakes', type: 'website' },
 }
 
-// Before the page is drawn: hide what will animate in.
-const motionScript = `document.documentElement.classList.add('motion')`
+// Before the page is drawn: hide what will animate in, and raise the opening curtain
+// (see Opening). It plays on every load and reload, not on moves between pages.
+const motionScript = `(function(){var h=document.documentElement;h.classList.add('motion','is-opening');h.dataset.openAt=String(performance.now())})()`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -37,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: motionScript }} />
       </head>
       <body>
+        <Opening />
         <a className="skip" href="#main">
           Skip to content
         </a>
