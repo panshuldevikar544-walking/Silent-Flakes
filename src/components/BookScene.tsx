@@ -373,7 +373,7 @@ export default function BookScene({ book, view, onMove, motif, active, onReady }
   return (
     <Canvas
       shadows={small ? false : 'percentage'}
-      dpr={[1, small ? 1.5 : 2]}
+      dpr={[1, small ? 1.25 : 2]}
       // The motion runs for every visitor, including those whose device asks to reduce it.
       frameloop={active ? 'always' : 'never'}
       camera={{ fov: 30 }}
@@ -394,7 +394,15 @@ export default function BookScene({ book, view, onMove, motif, active, onReady }
       <directionalLight position={[4, 1, -2]} intensity={0.8} color="#f3dcc2" />
       <Suspense fallback={null}>
         <Book book={book} view={view} onMove={onMove} onReady={onReady} />
-        <ContactShadows position={[0, -1.3, 0]} opacity={0.38} scale={6} blur={2.6} far={2} />
+        {/* Redrawn every frame; on phones a small one, blurred less, looks the same and costs far less. */}
+        <ContactShadows
+          position={[0, -1.3, 0]}
+          opacity={0.38}
+          scale={6}
+          blur={small ? 1.8 : 2.6}
+          far={2}
+          resolution={small ? 128 : 512}
+        />
       </Suspense>
       {motif && (
         <FallingLeaves

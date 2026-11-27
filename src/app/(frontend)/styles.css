@@ -1570,6 +1570,28 @@ html:not(.is-opening) .opening {
     opening-gone 0.3s ease-in 1.15s forwards;
 }
 
+/* Phones: no blurred layers. A blur behind the header is worked out again on every scroll
+   frame (over the 3D book, too), and a blurred full-screen layer costs a lot of memory. */
+@media (max-width: 760px) {
+  .site-header {
+    background: rgb(20 28 46 / 0.97);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .opening::after {
+    filter: none;
+  }
+
+  /* These shapes drift too slowly to notice on a small screen, but moving them makes the
+     phone repaint the whole background on every frame. Held still here. */
+  /* Doubled classes so this wins over the animations set further down the sheet. */
+  .hero-blob.hero-blob,
+  .process-blob.process-blob {
+    animation: none;
+  }
+}
+
 @keyframes opening-fall-back {
   to {
     transform: translate3d(0, 260px, 0);

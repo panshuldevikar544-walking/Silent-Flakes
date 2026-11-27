@@ -187,7 +187,7 @@ function visiblePieces(main: Element | null) {
     return box.width > 0 && box.height > 0 && box.bottom > 0 && box.top < window.innerHeight
   })
   const outer = found.filter((el) => !found.some((other) => other !== el && other.contains(el)))
-  return outer.slice(0, MOST_PIECES)
+  return outer.slice(0, window.innerWidth < 760 ? MOST_PIECES / 2 : MOST_PIECES)
 }
 
 /** A soft round flake drawn once, then stamped for every flake on every frame. */
@@ -226,7 +226,7 @@ function startStorm(dir: Wind) {
 
   const snow = getComputedStyle(document.documentElement).getPropertyValue('--twilight').trim() || '#f3ead8'
   const sprite = flakeSprite(snow)
-  const count = Math.round(Math.min(650, (width * height) / 1800))
+  const count = Math.round(Math.min(650, (width * height) / (width < 760 ? 2600 : 1800)))
   // Positions run along the wind: 0 is the side it comes from, `width` the side it goes to.
   const flakes: Flake[] = Array.from({ length: count }, () => ({
     x: Math.random() * width * 1.6 - width * 0.6,

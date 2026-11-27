@@ -35,7 +35,8 @@ export function SnowField() {
     }
 
     const size = () => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 2)
+      // Small soft dots need no extra sharpness; on phones a lower ratio saves a lot of drawing.
+      const ratio = Math.min(window.devicePixelRatio || 1, canvas.clientWidth < 760 ? 1.25 : 2)
       width = canvas.clientWidth
       height = canvas.clientHeight
       canvas.width = width * ratio
